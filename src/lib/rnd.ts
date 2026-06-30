@@ -1,0 +1,136 @@
+// Server-only helper for talking to the Hexa Space RND Supabase (the management
+// app's database) over its PostgREST API. Used by the booking endpoints to read
+// rooms/availability and write bookings. Tables follow the {id, data, updated_at}
+// jsonb convention, so we filter/select on `data->>field`.
+//
+// Requires env (set in .env.local / hosting):
+//   RND_SUPABASE_URL          e.g. https://ihvhnsdsvjwpyquvetzz.supabase.co
+//   RND_SUPABASE_SERVICE_KEY  service-role / secret key (bypasses RLS)
+import type { BookableResource, BookableGroup } from '@/data/bookable';
+import { BOOKABLE_RESOURCES } from '@/data/bookable';
+
+const URL = process.env.RND_SUPABASE_URL;
+const KEY = process.env.RND_SUPABASE_SERVICE_KEY;
+
+export function rndConfigured(): boolean {
+  return Boolean(URL && KEY);
+}
+
+async function rest(path: string, init?: RequestInit): Promise<Response> {
+  return fetch(`${URL}/rest/v1/${path}`, {
+    ...init,
+    headers: {
+      apikey: KEY as string,
+      Authorization: `Bearer ${KEY}`,
+      'Content-Type': 'application/json',
+      ...(init?.headers ?? {}),
+    },
+    cache: 'no-store',
+  });
+}
+
+/** SELECT rows; returns the raw {id, data, updated_at} records. */
+export async function rndSelect<T = Record<string, unknown>>(
+  table: string,
+  query = ''
+): Promise<{ id: string; data: T }[]> {
+  const res = await rest(`${table}?${query}`, { method: 'GET' });
+  if (!res.ok) throw new Error(`RND select ${table} → ${res.status}`);
+  return res.json();
+}
+
+/** INSERT rows (each already wrapped as {id, data, updated_at}). */
+export async function rndInsert(table: string, rows: unknown[]): Promise<void> {
+  const res = await rest(table, {
+    method: 'POST',
+    headers: { Prefer: 'return=minimal' },
+    body: JSON.stringify(rows),
+  });
+  if (!res.ok) {
+    const detail = await res.text().catch(() => '');
+    throw new Error(`RND insert ${table} → ${res.status} ${detail}`);
+  }
+}
+
+// ── resource resolution ──────────────────────────────────────────────────────
+
+type RndSpace = {
+  id: string;
+  unitNumber?: string;
+  type?: string;
+  size?: string;
+  capacity?: number;
+  hourlyRate?: number;
+  rate?: number;
+  image?: string | null;
+};
+
+/** Map an RND space name to one of the site's photos (RND spaces have no images). */
+function imageForName(name: string): string {
+  const n = name.toLowerCase();
+  if (n.includes('sky')) return '/photos/room-sky.jpg';
+  if (n.includes('earth')) return '/photos/room-earth.jpg';
+  if (n.includes('north')) return '/photos/room-north.jpg';
+  if (n.includes('south')) return '/photos/room-south.jpg';
+  if (n.includes('east')) return '/photos/room-east.jpg';
+  if (n.includes('west')) return '/photos/room-west.jpg';
+  if (n.includes('podcast')) return '/photos/podcast-studio.jpg';
+  if (n.includes('media')) return '/photos/media-1.jpg';
+  return '/photos/meeting-room.jpg';
+}
+
+function firstInt(s?: string): number | null {
+  const m = (s ?? '').match(/\d+/);
+  return m ? Number(m[0]) : null;
+}
+
+const isFunctionSpace = (s: RndSpace) => /function/i.test(s.unitNumber ?? '');
+
+/**
+ * Live bookable rooms + studios from the RND `spaces` table (real space ids), so
+ * bookings write back with ids the portal/admin calendar recognises. Falls back
+ * to the static list when the RND isn't configured/reachable.
+ */
+export async function getBookableResources(): Promise<BookableResource[]> {
+  if (!rndConfigured()) return BOOKABLE_RESOURCES;
+  try {
+    const rows = await rndSelect<RndSpace>('spaces', 'select=id,data');
+    const spaces = rows
+      .map((r) => ({ ...(r.data as RndSpace), id: r.id }))
+      .filter((s) => ['meeting', 'studio', 'podcast'].includes(s.type ?? '') && !isFunctionSpace(s));
+
+    if (!spaces.length) return BOOKABLE_RESOURCES;
+
+    const resources = spaces.map((s): BookableResource => {
+      const name = s.unitNumber ?? 'Room';
+      let rate = s.hourlyRate || s.rate || null;
+      if (/east/i.test(name)) rate = 120; // East (Chinese Tearoom) — premium rate
+      const group: BookableGroup = s.type === 'meeting' ? 'meeting' : 'studio';
+      return {
+        id: s.id,
+        name,
+        group,
+        pax: s.capacity ?? firstInt(s.size),
+        capacityLabel: s.size ?? (s.capacity ? `Up to ${s.capacity}` : ''),
+        rate,
+        rateLabel: rate ? `A$${rate} +GST / hr` : 'POA',
+        image: s.image || imageForName(name),
+      };
+    });
+
+    // Meeting rooms left→right by tier, with East (premium) furthest right.
+    resources.sort((a, b) => {
+      if (a.group !== b.group) return a.group === 'meeting' ? -1 : 1;
+      return roomRank(a.name) - roomRank(b.name);
+    });
+    return resources;
+  } catch {
+    return BOOKABLE_RESOURCES;
+  }
+}
+
+const ROOM_ORDER = ['sky', 'earth', 'north', 'south', 'west', 'central', 'east'];
+function roomRank(name: string): number {
+  const i = ROOM_ORDER.findIndex((k) => name.toLowerCase().includes(k));
+  return i < 0 ? ROOM_ORDER.length : i;
+}

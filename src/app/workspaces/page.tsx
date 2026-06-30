@@ -5,6 +5,7 @@ import PageHero from '@/components/PageHero';
 import Inclusions from '@/components/Inclusions';
 import CTASection from '@/components/CTASection';
 import Reveal from '@/components/Reveal';
+import EnquireButton from '@/components/enquiry/EnquireButton';
 import { WORKSPACES, COMMON_INCLUSIONS } from '@/data/content';
 
 export const metadata: Metadata = {
@@ -128,9 +129,9 @@ export default function WorkspacesPage() {
                           >
                             View membership
                           </Link>
-                          <Link href="/#enquire" className="btn">
+                          <EnquireButton interest={w.name} className="btn">
                             Enquire
-                          </Link>
+                          </EnquireButton>
                         </div>
                       </div>
                     </div>

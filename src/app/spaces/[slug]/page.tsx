@@ -6,6 +6,7 @@ import PageHero from '@/components/PageHero';
 import Inclusions from '@/components/Inclusions';
 import CTASection from '@/components/CTASection';
 import Reveal from '@/components/Reveal';
+import EnquireButton from '@/components/enquiry/EnquireButton';
 import { SPACES } from '@/data/content';
 
 export function generateStaticParams() {
@@ -37,6 +38,10 @@ export default async function SpaceDetailPage({
 
   const others = SPACES.filter((s) => s.slug !== slug);
 
+  // Meeting rooms + studios are bookable online; the function space stays enquiry-based.
+  const bookable = ['meeting-rooms', 'media-studios', 'podcast-studio'].includes(space.slug);
+  const bookHref = space.slug === 'meeting-rooms' ? '/book' : '/book?tab=studio';
+
   return (
     <main>
       <PageHero
@@ -55,12 +60,21 @@ export default async function SpaceDetailPage({
             </span>
             <span className="font-display font-extralight text-xl">{space.capacity}</span>
           </div>
-          <Link
-            href="/#enquire"
-            className="font-heading uppercase tracking-nav text-[11px] border border-paper px-6 py-3 hover:bg-paper hover:text-ink transition-colors duration-500 ease-lux"
-          >
-            {space.bookingLabel}
-          </Link>
+          {bookable ? (
+            <Link
+              href={bookHref}
+              className="font-heading uppercase tracking-nav text-[11px] border border-paper px-6 py-3 hover:bg-paper hover:text-ink transition-colors duration-500 ease-lux"
+            >
+              {space.bookingLabel}
+            </Link>
+          ) : (
+            <EnquireButton
+              interest={space.name}
+              className="font-heading uppercase tracking-nav text-[11px] border border-paper px-6 py-3 hover:bg-paper hover:text-ink transition-colors duration-500 ease-lux"
+            >
+              {space.bookingLabel}
+            </EnquireButton>
+          )}
         </div>
       </section>
 
@@ -135,7 +149,7 @@ export default async function SpaceDetailPage({
                         ))}
                       </ul>
 
-                      <Link href="/#enquire" className="btn mt-7 w-full">
+                      <Link href="/book" className="btn mt-7 w-full">
                         Book now
                       </Link>
                     </div>
@@ -220,6 +234,8 @@ export default async function SpaceDetailPage({
         }
         body="Tell us your dates and what you have in mind — our team will confirm availability and tailor the space to suit."
         primaryLabel={space.bookingLabel}
+        interest={space.name}
+        href={bookable ? bookHref : undefined}
       />
 
       {/* Explore other spaces */}

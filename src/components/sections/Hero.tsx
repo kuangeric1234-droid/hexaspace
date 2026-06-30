@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import TourButton from '@/components/enquiry/TourButton';
 
 export default function Hero() {
   return (
@@ -37,11 +38,11 @@ export default function Hero() {
             style={{ animationDelay: '360ms' }}
           >
             <Link href="#workspaces" className="btn btn-light">
-              Explore Hexa
+              Explore Hexa Space
             </Link>
-            <Link href="#enquire" className="btn btn-light border-paper/40">
+            <TourButton className="btn btn-light border-paper/40">
               Book a private tour
-            </Link>
+            </TourButton>
           </div>
         </div>
       </div>

@@ -48,8 +48,13 @@ export async function POST(req: NextRequest) {
         email,
         phone,
         businessName,
+        // `interest` is the structured enquiry type (e.g. "Virtual Office",
+        // "Private Office") so the CRM can tag/route the lead; `message` keeps the
+        // human-readable note. Sent alongside for back-compat with the intake.
+        interest,
+        enquiryType: interest,
         message: notes,
-        source: 'hexaspace',
+        source: 'hexaspace-website',
       }),
     });
 

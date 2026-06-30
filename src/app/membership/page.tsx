@@ -4,6 +4,7 @@ import Link from 'next/link';
 import PageHero from '@/components/PageHero';
 import CTASection from '@/components/CTASection';
 import Reveal from '@/components/Reveal';
+import EnquireButton from '@/components/enquiry/EnquireButton';
 import { MEMBERSHIP_BENEFITS, WORKSPACES } from '@/data/content';
 
 export const metadata: Metadata = {
@@ -86,9 +87,9 @@ export default function MembershipPage() {
                 of the world’s largest workspace networks — so wherever business
                 takes you, there’s a place to work waiting.
               </p>
-              <Link href="/#enquire" className="btn btn-light mt-9">
+              <EnquireButton interest="Membership" className="btn btn-light mt-9">
                 Ask about global access
-              </Link>
+              </EnquireButton>
             </div>
           </div>
         </div>

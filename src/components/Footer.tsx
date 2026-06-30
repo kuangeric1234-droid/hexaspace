@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import EnquireButton from '@/components/enquiry/EnquireButton';
 
 const COLS = [
   {
@@ -26,7 +27,8 @@ const COLS = [
       { label: 'Membership', href: '/membership' },
       { label: 'Podcast', href: '/podcast' },
       { label: 'About', href: '/about' },
-      { label: 'Contact', href: '/#enquire' },
+      { label: 'Contact', enquire: true },
+      { label: 'Member Login', href: 'https://members.hexaspace.com.au' },
     ],
   },
 ];
@@ -87,12 +89,18 @@ export default function Footer() {
             <ul className="mt-5 space-y-3">
               {col.links.map((l) => (
                 <li key={l.label}>
-                  <Link
-                    href={l.href}
-                    className="font-body text-[14px] text-paper/65 hover:text-paper transition-colors"
-                  >
-                    {l.label}
-                  </Link>
+                  {'enquire' in l ? (
+                    <EnquireButton className="font-body text-[14px] text-paper/65 hover:text-paper transition-colors">
+                      {l.label}
+                    </EnquireButton>
+                  ) : (
+                    <Link
+                      href={l.href}
+                      className="font-body text-[14px] text-paper/65 hover:text-paper transition-colors"
+                    >
+                      {l.label}
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>

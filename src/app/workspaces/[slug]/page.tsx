@@ -6,6 +6,7 @@ import PageHero from '@/components/PageHero';
 import Inclusions from '@/components/Inclusions';
 import CTASection from '@/components/CTASection';
 import Reveal from '@/components/Reveal';
+import EnquireButton from '@/components/enquiry/EnquireButton';
 import { WORKSPACES, COMMON_INCLUSIONS } from '@/data/content';
 
 export function generateStaticParams() {
@@ -80,12 +81,12 @@ export default async function WorkspaceDetailPage({
               </span>
             </div>
           </div>
-          <Link
-            href="/#enquire"
+          <EnquireButton
+            interest={workspace.name}
             className="font-heading uppercase tracking-nav text-[11px] border border-paper px-6 py-3 hover:bg-paper hover:text-ink transition-colors duration-500 ease-lux"
           >
             Enquire
-          </Link>
+          </EnquireButton>
         </div>
       </section>
 
@@ -200,6 +201,7 @@ export default async function WorkspaceDetailPage({
         }
         body="Tell us a little about how you work and we’ll tailor the right membership — then show you the floor in person."
         primaryLabel="Enquire now"
+        interest={workspace.name}
       />
 
       {/* Other memberships */}

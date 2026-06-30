@@ -1,8 +1,14 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { SPACES, WORKSPACES } from '@/data/content';
+import { useEnquiry } from '@/components/enquiry/EnquiryProvider';
+
+// Routes whose top of page is light (no dark hero) — the header must start solid
+// so the nav text is legible against the pale background.
+const LIGHT_TOP_ROUTES = ['/book'];
 
 type NavChild = { label: string; href: string; meta?: string };
 type NavItem = { label: string; href: string; children?: NavChild[] };
@@ -23,13 +29,18 @@ const NAV: NavItem[] = [
   { label: 'Workspaces', href: '/workspaces', children: WORKSPACE_LINKS },
   { label: 'Spaces', href: '/spaces', children: SPACE_LINKS },
   { label: 'Membership', href: '/membership' },
-  { label: 'Podcast', href: '/podcast' },
   { label: 'About', href: '/about' },
 ];
+
+// The member/client portal (separate app, members subdomain).
+const MEMBERS_URL = 'https://members.hexaspace.com.au';
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const { open: openEnquiry } = useEnquiry();
+  const pathname = usePathname();
+  const lightTop = LIGHT_TOP_ROUTES.some((r) => pathname === r || pathname.startsWith(`${r}/`));
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -42,8 +53,9 @@ export default function Header() {
     document.body.style.overflow = open ? 'hidden' : '';
   }, [open]);
 
-  // solid = white background + black text (after scroll, or while the mobile drawer is open).
-  const solid = scrolled || open;
+  // solid = white background + black text (after scroll, while the mobile drawer
+  // is open, or on light-top pages where white nav would be invisible).
+  const solid = scrolled || open || lightTop;
 
   const link = `font-heading uppercase tracking-nav text-[11px] transition-colors duration-500 ${
     solid ? 'text-ink/75 hover:text-ink' : 'text-paper/80 hover:text-paper'
@@ -118,11 +130,26 @@ export default function Header() {
             </Link>
           </div>
 
-          {/* Right nav (desktop) + Enquire */}
+          {/* Right nav (desktop) + Member login + Enquire */}
           <div className="hidden lg:flex items-center justify-end gap-8">
             {NAV.slice(3).map(renderDesktopItem)}
-            <Link
-              href="/#enquire"
+            <Link href="/book" className={link}>
+              Book
+            </Link>
+            <a href={MEMBERS_URL} className={`${link} inline-flex items-center gap-1.5`}>
+              <svg width="11" height="11" viewBox="0 0 14 14" fill="none" aria-hidden>
+                <path
+                  d="M7 7.2a2.4 2.4 0 1 0 0-4.8 2.4 2.4 0 0 0 0 4.8ZM2.4 12c0-2.2 2-3.6 4.6-3.6s4.6 1.4 4.6 3.6"
+                  stroke="currentColor"
+                  strokeWidth="1.1"
+                  strokeLinecap="round"
+                />
+              </svg>
+              Member Login
+            </a>
+            <button
+              type="button"
+              onClick={() => openEnquiry()}
               className={`font-heading uppercase tracking-nav text-[11px] border px-5 py-2.5 transition-colors duration-500 ease-lux ${
                 solid
                   ? 'border-ink text-ink hover:bg-ink hover:text-paper'
@@ -130,7 +157,7 @@ export default function Header() {
               }`}
             >
               Enquire
-            </Link>
+            </button>
           </div>
 
           {/* Mobile toggle */}
@@ -186,13 +213,26 @@ export default function Header() {
               )}
             </div>
           ))}
-          <Link
-            href="/#enquire"
-            onClick={() => setOpen(false)}
-            className="mt-5 btn w-full"
+          <Link href="/book" onClick={() => setOpen(false)} className="mt-5 btn w-full">
+            Book a Room
+          </Link>
+          <button
+            type="button"
+            onClick={() => {
+              setOpen(false);
+              openEnquiry();
+            }}
+            className="mt-3 btn w-full"
           >
             Enquire
-          </Link>
+          </button>
+          <a
+            href={MEMBERS_URL}
+            onClick={() => setOpen(false)}
+            className="mt-3 font-heading uppercase tracking-nav text-[11px] text-muted text-center"
+          >
+            Member Login
+          </a>
         </nav>
       </div>
     </header>

@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import Reveal from '@/components/Reveal';
+import TourButton from '@/components/enquiry/TourButton';
 import { WORKSPACES } from '@/data/content';
 
 const TIERS = WORKSPACES.map((w) => ({
@@ -62,7 +63,7 @@ export default function Workspaces() {
 
           {/* Trailing CTA cell to complete the grid */}
           <Reveal delay={200} className="bg-hexa-green text-paper flex">
-            <Link href="#enquire" className="flex flex-col justify-between p-8 w-full group">
+            <TourButton className="flex flex-col justify-between p-8 w-full text-left group">
               <p className="eyebrow text-paper/70">Not sure which fits?</p>
               <div>
                 <h3 className="font-display font-extralight text-3xl leading-tight">
@@ -72,7 +73,7 @@ export default function Workspaces() {
                   Arrange a visit
                 </span>
               </div>
-            </Link>
+            </TourButton>
           </Reveal>
         </div>
       </div>

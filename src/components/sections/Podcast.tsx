@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import EnquireButton from '@/components/enquiry/EnquireButton';
 
 export default function Podcast() {
   return (
@@ -39,9 +40,9 @@ export default function Podcast() {
               makers and thinkers who share our floor.
             </p>
             <div className="mt-9 flex flex-wrap gap-4">
-              <Link href="#enquire" className="btn btn-light">
+              <EnquireButton interest="The Podcast Studio" className="btn btn-light">
                 Book the studio
-              </Link>
+              </EnquireButton>
               <Link href="#" className="btn btn-light border-paper/30">
                 Listen
               </Link>

@@ -5,6 +5,7 @@ import PageHero from '@/components/PageHero';
 import Inclusions from '@/components/Inclusions';
 import CTASection from '@/components/CTASection';
 import Reveal from '@/components/Reveal';
+import EnquireButton from '@/components/enquiry/EnquireButton';
 import { SPACES } from '@/data/content';
 
 export const metadata: Metadata = {
@@ -84,9 +85,18 @@ export default function SpacesPage() {
                         <Link href={`/spaces/${s.slug}`} className="btn">
                           View {s.name}
                         </Link>
-                        <Link href="/#enquire" className="btn-ghost self-center">
-                          {s.bookingLabel}
-                        </Link>
+                        {['meeting-rooms', 'media-studios', 'podcast-studio'].includes(s.slug) ? (
+                          <Link
+                            href={s.slug === 'meeting-rooms' ? '/book' : '/book?tab=studio'}
+                            className="btn-ghost self-center"
+                          >
+                            {s.bookingLabel}
+                          </Link>
+                        ) : (
+                          <EnquireButton interest={s.name} className="btn-ghost self-center">
+                            {s.bookingLabel}
+                          </EnquireButton>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -106,6 +116,7 @@ export default function SpacesPage() {
         }
         body="From an intimate boardroom session to a 150-guest launch, our team will help you shape the space, the catering and the run of show."
         primaryLabel="Enquire about hosting"
+        interest="The Function Space"
       />
     </main>
   );

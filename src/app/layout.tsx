@@ -3,6 +3,7 @@ import localFont from 'next/font/local';
 import './globals.css';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import EnquiryProvider from '@/components/enquiry/EnquiryProvider';
 
 // Hexa brand typefaces (loaded locally from licensed .otf files)
 const display = localFont({
@@ -50,9 +51,11 @@ export default function RootLayout({
       className={`${display.variable} ${heading.variable} ${body.variable}`}
     >
       <body>
-        <Header />
-        {children}
-        <Footer />
+        <EnquiryProvider>
+          <Header />
+          {children}
+          <Footer />
+        </EnquiryProvider>
       </body>
     </html>
   );

@@ -1,10 +1,10 @@
 import Reveal from '@/components/Reveal';
-import EnquiryForm from '@/components/EnquiryForm';
+import TourButton from '@/components/enquiry/TourButton';
 
 export default function Location() {
   return (
     <section id="enquire" className="bg-bone py-24 md:py-36">
-      <div className="container-page grid gap-14 lg:grid-cols-2 lg:items-start">
+      <div className="container-page grid gap-14 lg:grid-cols-2 lg:items-center">
         <Reveal>
           <p className="eyebrow">Visit · Box Hill</p>
           <h2 className="h-display mt-6">
@@ -18,7 +18,18 @@ export default function Location() {
             and the studios.
           </p>
 
-          <div className="mt-10 grid gap-8 sm:grid-cols-2 max-w-lg">
+          <div className="mt-10 flex flex-wrap gap-4">
+            <TourButton className="btn">
+              Book a private tour
+            </TourButton>
+            <a href="tel:+61406016666" className="btn">
+              +61 406 016 666
+            </a>
+          </div>
+        </Reveal>
+
+        <Reveal delay={150}>
+          <div className="grid gap-8 sm:grid-cols-2 lg:pl-10">
             <div className="border-t border-ink pt-4">
               <p className="eyebrow">Address</p>
               <p className="prose-body text-ink mt-3">
@@ -42,13 +53,6 @@ export default function Location() {
                 </a>
               </p>
             </div>
-          </div>
-        </Reveal>
-
-        <Reveal delay={150}>
-          <div className="lg:pt-2">
-            <p className="eyebrow mb-7">Make an enquiry</p>
-            <EnquiryForm />
           </div>
         </Reveal>
       </div>

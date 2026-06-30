@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
-import Link from 'next/link';
 import PageHero from '@/components/PageHero';
 import CTASection from '@/components/CTASection';
 import Reveal from '@/components/Reveal';
+import EnquireButton from '@/components/enquiry/EnquireButton';
 
 export const metadata: Metadata = {
   title: 'About — Hexa Space',
@@ -184,14 +184,14 @@ export default function AboutPage() {
             </p>
           </Reveal>
           <Reveal delay={120}>
-            <Link href="/#enquire" className="btn">
+            <EnquireButton className="btn">
               Get in touch
-            </Link>
+            </EnquireButton>
           </Reveal>
         </div>
       </section>
 
-      <CTASection />
+      <CTASection tour />
     </main>
   );
 }

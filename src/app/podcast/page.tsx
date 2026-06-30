@@ -5,6 +5,7 @@ import PageHero from '@/components/PageHero';
 import Inclusions from '@/components/Inclusions';
 import CTASection from '@/components/CTASection';
 import Reveal from '@/components/Reveal';
+import EnquireButton from '@/components/enquiry/EnquireButton';
 import { EPISODES, PLATFORMS, SPACES } from '@/data/content';
 
 export const metadata: Metadata = {
@@ -162,9 +163,9 @@ export default function PodcastPage() {
                 <Inclusions items={studio.inclusions} light />
               </div>
               <div className="mt-9 flex flex-wrap gap-4">
-                <Link href="/#enquire" className="btn btn-light">
+                <EnquireButton interest="The Podcast Studio" className="btn btn-light">
                   Book the studio
-                </Link>
+                </EnquireButton>
                 <Link href="/spaces#podcast-studio" className="btn btn-light border-paper/30">
                   Studio details
                 </Link>

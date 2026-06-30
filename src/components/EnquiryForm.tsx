@@ -1,21 +1,18 @@
 'use client';
 
 import { useState } from 'react';
-
-const INTERESTS = [
-  'A workspace membership',
-  'Private office / suite',
-  'Meeting room',
-  'Function / event space',
-  'Media studio',
-  'Podcast studio',
-  'A private tour',
-  'Something else',
-];
+import { ENQUIRY_GROUPS, normaliseInterest } from '@/data/enquiry';
 
 type Status = 'idle' | 'sending' | 'sent' | 'error';
 
-export default function EnquiryForm() {
+export default function EnquiryForm({
+  defaultInterest = '',
+  onSent,
+}: {
+  /** Pre-select "I'm interested in" (e.g. opened from the Private Office page). */
+  defaultInterest?: string;
+  onSent?: () => void;
+}) {
   const [status, setStatus] = useState<Status>('idle');
   const [error, setError] = useState('');
 
@@ -40,6 +37,7 @@ export default function EnquiryForm() {
       }
       setStatus('sent');
       form.reset();
+      onSent?.();
     } catch {
       setError('Network error. Please try again, or email info@hexaspace.com.au.');
       setStatus('error');
@@ -48,7 +46,7 @@ export default function EnquiryForm() {
 
   if (status === 'sent') {
     return (
-      <div className="border border-ink/15 p-10 md:p-12">
+      <div className="py-2">
         <p className="eyebrow text-hexa-green">Enquiry received</p>
         <h3 className="font-display font-extralight text-3xl mt-5">Thank you.</h3>
         <p className="prose-body mt-4 max-w-sm">
@@ -80,19 +78,23 @@ export default function EnquiryForm() {
       </div>
 
       <label className="block">
-        <span className="eyebrow">I’m interested in</span>
+        <span className="eyebrow">I’m enquiring about</span>
         <select
           name="interest"
-          defaultValue=""
+          defaultValue={normaliseInterest(defaultInterest)}
           className="mt-3 w-full border-b border-ink/20 bg-transparent py-3 font-body text-[15px] text-ink focus:border-ink focus:outline-none transition-colors"
         >
           <option value="" disabled>
             Select an option
           </option>
-          {INTERESTS.map((i) => (
-            <option key={i} value={i}>
-              {i}
-            </option>
+          {ENQUIRY_GROUPS.map((group) => (
+            <optgroup key={group.label} label={group.label}>
+              {group.options.map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
+            </optgroup>
           ))}
         </select>
       </label>

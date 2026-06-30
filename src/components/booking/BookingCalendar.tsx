@@ -1,0 +1,306 @@
+'use client';
+
+import Image from 'next/image';
+import { useEffect, useMemo, useState } from 'react';
+import {
+  BOOKABLE_RESOURCES,
+  BOOKABLE_TABS,
+  DAY_START,
+  DAY_END,
+  type BookableGroup,
+  type BookableResource,
+} from '@/data/bookable';
+import {
+  AvailabilityBooking,
+  fromDec,
+  hourLabel,
+  longDate,
+  overlaps,
+  timeLabel,
+  toDec,
+  ymd,
+} from '@/lib/booking';
+import BookingFlow from './BookingFlow';
+
+const HOUR_H = 62;
+const HEADER_H = 144;
+const HOURS = Array.from({ length: DAY_END - DAY_START }, (_, i) => DAY_START + i);
+
+type Slot = { resource: BookableResource; date: string; startTime: string; endTime: string };
+
+export default function BookingCalendar({ initialTab = 'meeting' }: { initialTab?: BookableGroup }) {
+  const [tab, setTab] = useState<BookableGroup>(initialTab);
+  const [day, setDay] = useState<Date>(() => new Date());
+  const [bookings, setBookings] = useState<AvailabilityBooking[]>([]);
+  const [allResources, setAllResources] = useState<BookableResource[]>(BOOKABLE_RESOURCES);
+  const [loading, setLoading] = useState(false);
+  const [slot, setSlot] = useState<Slot | null>(null);
+
+  const dayStr = ymd(day);
+  const resources = useMemo(() => allResources.filter((r) => r.group === tab), [allResources, tab]);
+
+  // Source the live bookable rooms/studios from the RND; fall back to the static
+  // list (so the calendar still renders if the RND env isn't wired in this env).
+  useEffect(() => {
+    let active = true;
+    fetch('/api/book/resources')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => {
+        if (active && j && Array.isArray(j.resources) && j.resources.length) {
+          setAllResources(j.resources as BookableResource[]);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  // Load existing bookings for the visible day so taken slots are blocked out.
+  useEffect(() => {
+    let active = true;
+    setLoading(true);
+    fetch(`/api/book/availability?date=${dayStr}`)
+      .then((r) => (r.ok ? r.json() : { bookings: [] }))
+      .then((j) => {
+        if (active) setBookings(Array.isArray(j.bookings) ? j.bookings : []);
+      })
+      .catch(() => active && setBookings([]))
+      .finally(() => active && setLoading(false));
+    return () => {
+      active = false;
+    };
+  }, [dayStr]);
+
+  function shiftDay(delta: number) {
+    setDay((d) => {
+      const n = new Date(d);
+      n.setDate(n.getDate() + delta);
+      return n;
+    });
+  }
+
+  function isTaken(resourceId: string, hour: number): boolean {
+    const s = fromDec(hour);
+    const e = fromDec(hour + 1);
+    return bookings.some(
+      (b) =>
+        b.resourceId === resourceId &&
+        b.date === dayStr &&
+        b.status !== 'Cancelled' &&
+        overlaps(s, e, b.startTime, b.endTime)
+    );
+  }
+
+  function openSlot(resource: BookableResource, hour: number) {
+    setSlot({
+      resource,
+      date: dayStr,
+      startTime: fromDec(hour),
+      endTime: fromDec(hour + 1),
+    });
+  }
+
+  const isToday = ymd(new Date()) === dayStr;
+
+  return (
+    <div>
+      {/* Tabs + heading */}
+      <div className="flex flex-wrap items-end justify-between gap-6">
+        <div>
+          <p className="eyebrow">Public Calendar</p>
+          <div className="mt-3 flex items-baseline gap-6">
+            {BOOKABLE_TABS.map((t) => (
+              <button
+                key={t.key}
+                type="button"
+                onClick={() => setTab(t.key)}
+                className={`font-display font-extralight text-3xl md:text-4xl transition-colors ${
+                  tab === t.key ? 'text-ink' : 'text-muted/40 hover:text-muted'
+                }`}
+              >
+                {t.label}
+                {tab === t.key && <span className="block h-px bg-hexa-green mt-2" />}
+              </button>
+            ))}
+          </div>
+          <p className="prose-body mt-4 text-[13px]">
+            {resources.length} {resources.length === 1 ? 'space' : 'spaces'} ·{' '}
+            {loading ? 'checking availability…' : 'click an open slot to book'}
+          </p>
+        </div>
+
+        {/* Date navigation */}
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setDay(new Date())}
+            className="font-heading uppercase tracking-nav text-[10px] border border-ink/15 px-4 py-2.5 hover:bg-ink hover:text-paper transition-colors"
+          >
+            Today
+          </button>
+          <div className="flex items-center border border-ink/15">
+            <button type="button" onClick={() => shiftDay(-1)} aria-label="Previous day" className="p-2.5 hover:bg-bone transition-colors">
+              <Chevron dir="left" />
+            </button>
+            <button type="button" onClick={() => shiftDay(1)} aria-label="Next day" className="p-2.5 border-l border-ink/15 hover:bg-bone transition-colors">
+              <Chevron dir="right" />
+            </button>
+          </div>
+          <span className="font-display font-extralight text-xl md:text-2xl whitespace-nowrap">
+            {longDate(day)}
+          </span>
+        </div>
+      </div>
+
+      {/* Calendar grid */}
+      <div className="mt-8 border border-ink/10 bg-paper overflow-x-auto">
+        <div className="flex">
+          {/* Time gutter */}
+          <div className="w-16 shrink-0 border-r border-ink/10">
+            <div style={{ height: HEADER_H }} className="border-b border-ink/10" />
+            {HOURS.map((h) => (
+              <div
+                key={h}
+                style={{ height: HOUR_H }}
+                className="font-heading uppercase tracking-nav text-[9px] text-muted text-right pr-2 -mt-1.5"
+              >
+                {hourLabel(h)}
+              </div>
+            ))}
+          </div>
+
+          {/* Resource columns */}
+          {resources.map((room) => {
+            const roomBookings = bookings.filter((b) => b.resourceId === room.id && b.date === dayStr);
+            return (
+              <div key={room.id} className="flex-1 min-w-[164px] border-r border-ink/10 last:border-r-0">
+                {/* Column header — photo, name, pax, rate */}
+                <div style={{ height: HEADER_H }} className="border-b border-ink/10 border-t-2 border-t-hexa-green">
+                  <div className="relative h-[92px] w-full overflow-hidden">
+                    <Image
+                      src={room.image}
+                      alt={room.name}
+                      fill
+                      sizes="(max-width:768px) 50vw, 240px"
+                      className="object-cover"
+                    />
+                  </div>
+                  <div className="px-3 py-2.5">
+                    <div className="font-heading uppercase tracking-[0.04em] text-[11px] text-ink truncate">
+                      {room.name}
+                    </div>
+                    <div className="mt-1.5 flex items-center gap-2.5">
+                      {room.pax != null && (
+                        <span className="inline-flex items-center gap-1 font-heading uppercase tracking-nav text-[9px] text-muted">
+                          <PaxIcon /> {room.pax}
+                        </span>
+                      )}
+                      <span className="font-heading uppercase tracking-nav text-[9px] text-hexa-green">
+                        {room.rateLabel}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Hour grid */}
+                <div className="relative" style={{ height: HOURS.length * HOUR_H }}>
+                  {HOURS.map((h) => {
+                    const taken = isTaken(room.id, h);
+                    return (
+                      <button
+                        key={h}
+                        type="button"
+                        disabled={taken}
+                        onClick={() => openSlot(room, h)}
+                        style={{ height: HOUR_H }}
+                        className={`block w-full border-b border-ink/5 transition-colors ${
+                          taken ? 'cursor-default' : 'hover:bg-hexa-green/5 cursor-pointer'
+                        }`}
+                      />
+                    );
+                  })}
+
+                  {/* Existing bookings — blocked */}
+                  {roomBookings.map((b, i) => {
+                    const top = (toDec(b.startTime) - DAY_START) * HOUR_H;
+                    const height = Math.max(22, (toDec(b.endTime) - toDec(b.startTime)) * HOUR_H);
+                    return (
+                      <div
+                        key={`${b.startTime}-${i}`}
+                        className="absolute left-1 right-1 bg-charcoal text-paper/90 px-2 py-1 overflow-hidden pointer-events-none"
+                        style={{ top, height }}
+                      >
+                        <div className="font-heading uppercase tracking-nav text-[9px] truncate">Booked</div>
+                        <div className="text-[10px] opacity-80 truncate">{timeLabel(b.startTime)}</div>
+                      </div>
+                    );
+                  })}
+
+                  {/* Current-time line (today only) */}
+                  {isToday && <NowLine />}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {slot && (
+        <BookingFlow
+          resource={slot.resource}
+          date={slot.date}
+          startTime={slot.startTime}
+          endTime={slot.endTime}
+          existing={bookings}
+          onClose={() => setSlot(null)}
+          onBooked={(b) =>
+            setBookings((prev) => [
+              ...prev,
+              { resourceId: b.resourceId, date: b.date, startTime: b.startTime, endTime: b.endTime, status: 'Pending' },
+            ])
+          }
+        />
+      )}
+    </div>
+  );
+}
+
+function NowLine() {
+  const now = new Date();
+  const dec = now.getHours() + now.getMinutes() / 60;
+  if (dec < DAY_START || dec > DAY_END) return null;
+  const top = (dec - DAY_START) * HOUR_H;
+  return (
+    <div className="absolute left-0 right-0 pointer-events-none" style={{ top }}>
+      <div className="h-px bg-red-500" />
+    </div>
+  );
+}
+
+function Chevron({ dir }: { dir: 'left' | 'right' }) {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
+      <path
+        d={dir === 'left' ? 'M9 2 L4 7 L9 12' : 'M5 2 L10 7 L5 12'}
+        stroke="currentColor"
+        strokeWidth="1.3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function PaxIcon() {
+  return (
+    <svg width="10" height="10" viewBox="0 0 14 14" fill="none" aria-hidden>
+      <path
+        d="M7 7.2a2.4 2.4 0 1 0 0-4.8 2.4 2.4 0 0 0 0 4.8ZM2.4 12c0-2.2 2-3.6 4.6-3.6s4.6 1.4 4.6 3.6"
+        stroke="currentColor"
+        strokeWidth="1.1"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}

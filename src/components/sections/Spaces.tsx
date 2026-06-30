@@ -1,22 +1,30 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import Reveal from '@/components/Reveal';
+import EnquireButton from '@/components/enquiry/EnquireButton';
 
 const SPACES = [
   {
     name: 'Meeting Rooms',
+    interest: 'Meeting Rooms',
+    bookHref: '/book',
+    cta: 'Check availability',
     img: '/photos/meeting-room.jpg',
     detail: '4 – 12 guests',
     copy: 'Six named rooms with floor-to-ceiling windows and advanced AV — from an intimate consulting room to a traditional Chinese tearoom.',
   },
   {
     name: 'Event Space',
+    interest: 'The Function Space',
     img: '/photos/event-space.jpg',
     detail: '20 – 100 guests',
     copy: 'A versatile setting for launches, seminars and gatherings — full AV, IT and catering, framed by the Box Hill skyline.',
   },
   {
     name: 'Media Studios',
+    interest: 'Media Studios',
+    bookHref: '/book?tab=studio',
+    cta: 'Check availability',
     img: '/photos/media-1.jpg',
     detail: 'Photo · Video',
     copy: 'Purpose-built studios for video, photography and content — professional equipment, on tap, by the hour.',
@@ -63,9 +71,15 @@ export default function Spaces() {
                       {s.name}
                     </h3>
                     <p className="prose-body mt-5 max-w-md">{s.copy}</p>
-                    <Link href="#enquire" className="btn-ghost mt-7">
-                      Enquire
-                    </Link>
+                    {s.bookHref ? (
+                      <Link href={s.bookHref} className="btn-ghost mt-7">
+                        {s.cta}
+                      </Link>
+                    ) : (
+                      <EnquireButton interest={s.interest} className="btn-ghost mt-7">
+                        Enquire
+                      </EnquireButton>
+                    )}
                   </div>
                 </div>
               </div>
