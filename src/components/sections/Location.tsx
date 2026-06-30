@@ -1,11 +1,10 @@
-import Image from 'next/image';
-import Link from 'next/link';
 import Reveal from '@/components/Reveal';
+import EnquiryForm from '@/components/EnquiryForm';
 
 export default function Location() {
   return (
     <section id="enquire" className="bg-bone py-24 md:py-36">
-      <div className="container-page grid gap-14 lg:grid-cols-2 lg:items-center">
+      <div className="container-page grid gap-14 lg:grid-cols-2 lg:items-start">
         <Reveal>
           <p className="eyebrow">Visit · Box Hill</p>
           <h2 className="h-display mt-6">
@@ -14,8 +13,9 @@ export default function Location() {
             <span className="italic">the space.</span>
           </h2>
           <p className="lead mt-7 max-w-lg">
-            The best way to understand Hexa Space is to stand in it. Arrange a
-            private tour and we will show you the floor, the lounge and the studios.
+            The best way to understand Hexa Space is to stand in it. Send an
+            enquiry and we’ll arrange a private tour of the floor, the lounge
+            and the studios.
           </p>
 
           <div className="mt-10 grid gap-8 sm:grid-cols-2 max-w-lg">
@@ -43,26 +43,12 @@ export default function Location() {
               </p>
             </div>
           </div>
-
-          <div className="mt-10 flex flex-wrap gap-4">
-            <Link href="mailto:info@hexaspace.com.au" className="btn">
-              Book a private tour
-            </Link>
-            <Link href="#" className="btn-ghost self-center">
-              Download brochure
-            </Link>
-          </div>
         </Reveal>
 
         <Reveal delay={150}>
-          <div className="relative aspect-[4/5] overflow-hidden">
-            <Image
-              src="/photos/location.jpg"
-              alt="Hexa Space, Box Hill"
-              fill
-              sizes="(max-width:1024px) 100vw, 50vw"
-              className="object-cover"
-            />
+          <div className="lg:pt-2">
+            <p className="eyebrow mb-7">Make an enquiry</p>
+            <EnquiryForm />
           </div>
         </Reveal>
       </div>
