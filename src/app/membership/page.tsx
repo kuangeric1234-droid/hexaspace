@@ -111,7 +111,7 @@ export default function MembershipPage() {
             {WORKSPACES.map((w) => (
               <Reveal key={w.slug} className="bg-paper">
                 <Link
-                  href={`/workspaces#${w.slug}`}
+                  href={`/workspaces/${w.slug}`}
                   className="group flex h-full flex-col justify-between p-8 hover:bg-bone transition-colors"
                 >
                   <div>

@@ -88,7 +88,14 @@ export default function WorkspacesPage() {
                     {/* Detail */}
                     <div className="lg:py-4">
                       <div className="flex items-baseline justify-between gap-6">
-                        <h2 className="h-section">{w.name}</h2>
+                        <Link
+                          href={`/workspaces/${w.slug}`}
+                          className="group/title inline-flex items-baseline gap-3"
+                        >
+                          <h2 className="h-section group-hover/title:text-hexa-green transition-colors">
+                            {w.name}
+                          </h2>
+                        </Link>
                         <span className="font-heading uppercase tracking-label text-[11px] text-hexa-green whitespace-nowrap">
                           {w.capacity}
                         </span>
@@ -114,9 +121,17 @@ export default function WorkspacesPage() {
                             {w.unit}
                           </span>
                         </p>
-                        <Link href="/#enquire" className="btn">
-                          Enquire
-                        </Link>
+                        <div className="flex items-center gap-3">
+                          <Link
+                            href={`/workspaces/${w.slug}`}
+                            className="btn-ghost"
+                          >
+                            View membership
+                          </Link>
+                          <Link href="/#enquire" className="btn">
+                            Enquire
+                          </Link>
+                        </div>
                       </div>
                     </div>
                   </div>

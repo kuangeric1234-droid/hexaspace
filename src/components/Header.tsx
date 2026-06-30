@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { SPACES } from '@/data/content';
+import { SPACES, WORKSPACES } from '@/data/content';
 
 type NavChild = { label: string; href: string; meta?: string };
 type NavItem = { label: string; href: string; children?: NavChild[] };
@@ -13,8 +13,14 @@ const SPACE_LINKS: NavChild[] = SPACES.map((s) => ({
   meta: s.capacity,
 }));
 
+const WORKSPACE_LINKS: NavChild[] = WORKSPACES.map((w) => ({
+  label: w.name,
+  href: `/workspaces/${w.slug}`,
+  meta: w.price === 'On application' ? 'POA' : w.price,
+}));
+
 const NAV: NavItem[] = [
-  { label: 'Workspaces', href: '/workspaces' },
+  { label: 'Workspaces', href: '/workspaces', children: WORKSPACE_LINKS },
   { label: 'Spaces', href: '/spaces', children: SPACE_LINKS },
   { label: 'Membership', href: '/membership' },
   { label: 'Podcast', href: '/podcast' },

@@ -1,44 +1,16 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import Reveal from '@/components/Reveal';
+import { WORKSPACES } from '@/data/content';
 
-const TIERS = [
-  {
-    name: 'Virtual Office',
-    price: 'From $75',
-    unit: '/ month',
-    img: '/photos/location.jpg',
-    copy: 'A prestigious Box Hill business address, mail handling and on-demand access to meeting space.',
-  },
-  {
-    name: 'Flexible Desk',
-    price: 'From $350',
-    unit: '/ month',
-    img: '/photos/flexible-desk.jpg',
-    copy: '24/7 access to a stunning shared environment, with the freedom to work anywhere across the floor.',
-  },
-  {
-    name: 'Dedicated Desk',
-    price: 'From $500',
-    unit: '/ month',
-    img: '/photos/dedicated-desk.jpg',
-    copy: 'Your own desk and 24/7 access to every common space — a permanent home base, kept just as you left it.',
-  },
-  {
-    name: 'Private Office',
-    price: 'On application',
-    unit: '',
-    img: '/photos/private-office.jpg',
-    copy: 'Architecturally designed private offices bathed in natural light from floor-to-ceiling windows.',
-  },
-  {
-    name: 'Enterprise Suites',
-    price: 'On application',
-    unit: '',
-    img: '/photos/enterprise.jpg',
-    copy: 'Self-contained suites offering complete privacy and independence for established teams.',
-  },
-];
+const TIERS = WORKSPACES.map((w) => ({
+  slug: w.slug,
+  name: w.name,
+  price: w.price,
+  unit: w.unit,
+  img: w.image,
+  copy: w.description,
+}));
 
 export default function Workspaces() {
   return (
@@ -59,30 +31,32 @@ export default function Workspaces() {
         <div className="mt-16 grid gap-px bg-ink/10 md:grid-cols-2 lg:grid-cols-3">
           {TIERS.map((t, i) => (
             <Reveal key={t.name} delay={(i % 3) * 100} className="group bg-paper">
-              <div className="relative aspect-[3/2] overflow-hidden">
-                <Image
-                  src={t.img}
-                  alt={t.name}
-                  fill
-                  sizes="(max-width:768px) 100vw, 33vw"
-                  className="object-cover transition-transform duration-[1.2s] ease-lux group-hover:scale-105"
-                />
-              </div>
-              <div className="p-7">
-                <div className="flex items-baseline justify-between gap-4">
-                  <h3 className="font-heading uppercase tracking-[0.06em] text-sm">{t.name}</h3>
+              <Link href={`/workspaces/${t.slug}`} className="flex h-full flex-col">
+                <div className="relative aspect-[3/2] overflow-hidden">
+                  <Image
+                    src={t.img}
+                    alt={t.name}
+                    fill
+                    sizes="(max-width:768px) 100vw, 33vw"
+                    className="object-cover transition-transform duration-[1.2s] ease-lux group-hover:scale-105"
+                  />
                 </div>
-                <p className="prose-body mt-3 min-h-[66px]">{t.copy}</p>
-                <div className="mt-6 flex items-end justify-between border-t border-ink/10 pt-5">
-                  <p className="font-display font-extralight text-2xl">
-                    {t.price}
-                    <span className="font-body text-xs text-muted ml-1">{t.unit}</span>
-                  </p>
-                  <Link href="#enquire" className="btn-ghost">
-                    Enquire
-                  </Link>
+                <div className="flex flex-1 flex-col p-7">
+                  <div className="flex items-baseline justify-between gap-4">
+                    <h3 className="font-heading uppercase tracking-[0.06em] text-sm">{t.name}</h3>
+                  </div>
+                  <p className="prose-body mt-3 min-h-[66px]">{t.copy}</p>
+                  <div className="mt-6 flex items-end justify-between border-t border-ink/10 pt-5">
+                    <p className="font-display font-extralight text-2xl">
+                      {t.price}
+                      <span className="font-body text-xs text-muted ml-1">{t.unit}</span>
+                    </p>
+                    <span className="btn-ghost group-hover:text-hexa-green">
+                      View membership
+                    </span>
+                  </div>
                 </div>
-              </div>
+              </Link>
             </Reveal>
           ))}
 

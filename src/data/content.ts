@@ -15,6 +15,17 @@ export type Workspace = {
   inclusions: string[];
   /** inherits the inclusions of the tier below it (shown as "Everything in X, plus") */
   inherits?: string;
+  // ── detail-page fields ──────────────────────────────────────────────
+  /** membership term, shown on the pricing bar */
+  term: string;
+  /** one-line "who it's for", shown on the pricing bar & overview */
+  idealFor: string;
+  /** longer narrative lead for the detail page overview */
+  intro: string;
+  /** three editorial highlights for the detail page */
+  highlights: { title: string; copy: string }[];
+  /** detail-page gallery */
+  gallery: string[];
 };
 
 export const WORKSPACES: Workspace[] = [
@@ -28,6 +39,24 @@ export const WORKSPACES: Workspace[] = [
       'Establish your business at one of Box Hill’s most recognised addresses — with mail, meetings and the Hexa community on call whenever you need them.',
     capacity: 'Address only',
     image: '/photos/reception.jpg',
+    term: 'Month-to-month',
+    idealFor: 'Remote founders, consultants & growing online businesses',
+    intro:
+      'Not every business needs four walls — but every business needs to be taken seriously. The Virtual Office gives you the standing of a premium Box Hill address without the overhead of a desk: a real place for your mail, your registration and your meetings, backed by a team who answer the door and the phone as though you were here all along. When you do need a room, the whole floor is a booking away.',
+    highlights: [
+      {
+        title: 'An address that opens doors',
+        copy: 'Level 4, 830 Whitehorse Road sits at the centre of Box Hill — use it for ASIC and business registration, your website, your cards and your correspondence.',
+      },
+      {
+        title: 'Mail, received & handled',
+        copy: 'Our front desk receives your post and parcels, lets you know they’ve arrived, and holds, forwards or scans them however you prefer.',
+      },
+      {
+        title: 'A room when you need one',
+        copy: 'Book meeting rooms and the function space at member rates, pay only for what you use, and meet clients somewhere that reflects your business.',
+      },
+    ],
     inclusions: [
       'Prestigious Level 4, 830 Whitehorse Road business address',
       'Use of address for ASIC & business registration',
@@ -36,6 +65,7 @@ export const WORKSPACES: Workspace[] = [
       'Discounted event & studio hire',
       'Invitations to member community events',
     ],
+    gallery: ['/photos/reception.jpg', '/photos/lounge.jpg', '/photos/view-north.jpg'],
   },
   {
     slug: 'flexible-desk',
@@ -47,6 +77,24 @@ export const WORKSPACES: Workspace[] = [
       'The freedom of the whole space. Settle wherever the day takes you — a quiet corner, the members lounge, or a sunlit bench by the window.',
     capacity: '1 person',
     image: '/photos/flexible-desk.jpg',
+    term: 'Month-to-month',
+    idealFor: 'Freelancers, founders & anyone who likes to move with the day',
+    intro:
+      'Some days call for a quiet corner; others, the buzz of the lounge or a sunlit bench by the window. The Flexible Desk gives you the entire floor to roam — 24/7 — without ever being tied to one spot. Arrive when it suits you, settle wherever you think best, and let the coffee, the Wi-Fi and the company take care of the rest. It’s the easiest way to belong to the space without committing to a single seat.',
+    highlights: [
+      {
+        title: 'The whole floor is yours',
+        copy: 'Hot-desk anywhere across the flexible areas — focus rooms, the members lounge, breakout nooks and window benches — and change it up whenever the mood does.',
+      },
+      {
+        title: 'Around the clock',
+        copy: 'Secure 24/7 access means the space works to your hours, not the other way around — early starts, late finishes and weekend sprints all welcome.',
+      },
+      {
+        title: 'Everything on tap',
+        copy: 'Business-grade Wi-Fi, barista-style coffee, filtered water, showers and lockers — plus two hours of monthly meeting-room credit when you need a door that closes.',
+      },
+    ],
     inclusions: [
       '24/7 secure access',
       'Hot desking across all flexible areas',
@@ -57,6 +105,7 @@ export const WORKSPACES: Workspace[] = [
       'End-of-trip facilities — showers & lockers',
       'Community events & programming',
     ],
+    gallery: ['/photos/flexible-desk.jpg', '/photos/workspace.jpg', '/photos/lounge.jpg'],
   },
   {
     slug: 'dedicated-desk',
@@ -69,6 +118,24 @@ export const WORKSPACES: Workspace[] = [
     capacity: '1 person',
     image: '/photos/dedicated-desk.jpg',
     inherits: 'Flexible Desk',
+    term: 'Month-to-month',
+    idealFor: 'Established solos & small teams wanting a permanent base',
+    intro:
+      'There’s a particular comfort in a desk that’s yours — your monitor, your chair, your things, exactly where you left them. The Dedicated Desk turns the shared floor into a home base: a permanent, reserved spot with lockable storage and your name on it, plus everything the Flexible Desk offers. Walk in, sit down, pick up where you left off. No setting up, no packing down, no wondering where you’ll land.',
+    highlights: [
+      {
+        title: 'Always exactly as you left it',
+        copy: 'A permanent, reserved desk that’s yours alone — set it up once with your monitor and gear, and it’s waiting for you every morning.',
+      },
+      {
+        title: 'Somewhere to lock it away',
+        copy: 'A lockable storage pedestal, an ergonomic chair with a sit-stand option and a personalised name plate make the space genuinely your own.',
+      },
+      {
+        title: 'A business address, included',
+        copy: 'Your membership carries a Box Hill business address and mail handling as standard, plus five hours of monthly meeting-room credit.',
+      },
+    ],
     inclusions: [
       'Your own permanent, reserved desk',
       'Lockable storage pedestal',
@@ -77,6 +144,7 @@ export const WORKSPACES: Workspace[] = [
       '5 hours of meeting room credit each month',
       'Personalised name plate',
     ],
+    gallery: ['/photos/dedicated-desk.jpg', '/photos/workspace.jpg', '/photos/gallery-2.jpg'],
   },
   {
     slug: 'private-office',
@@ -89,6 +157,24 @@ export const WORKSPACES: Workspace[] = [
     capacity: '2 – 20 people',
     image: '/photos/private-office.jpg',
     inherits: 'Dedicated Desk',
+    term: 'Month-to-month',
+    idealFor: 'Teams of two to twenty wanting privacy without isolation',
+    intro:
+      'A room of your own changes how a team works — somewhere to think out loud, close the door on a sensitive call, and build a culture that’s unmistakably yours. Our private offices are architecturally designed and framed by floor-to-ceiling windows, so the privacy never comes at the cost of light. Lockable, fully furnished and configurable for two to twenty, they give you the autonomy of your own premises with the lounge, studios and community of Hexa Space just outside the door.',
+    highlights: [
+      {
+        title: 'Designed, not partitioned',
+        copy: 'Architecturally considered offices bathed in natural light from floor-to-ceiling windows — premium furniture, and your branding on the door if you’d like it.',
+      },
+      {
+        title: 'Right-sized for your team',
+        copy: 'Configurable for anywhere from two to twenty people, with the flexibility to reshape the room as your team grows or changes.',
+      },
+      {
+        title: 'Privacy, with the perks',
+        copy: 'Your own lockable room, plus ten hours of monthly meeting-room credit and priority booking on the function space and studios.',
+      },
+    ],
     inclusions: [
       'Lockable, fully furnished private office',
       'Floor-to-ceiling windows & natural light',
@@ -98,6 +184,7 @@ export const WORKSPACES: Workspace[] = [
       '10 hours of meeting room credit each month',
       'Priority event & studio booking',
     ],
+    gallery: ['/photos/private-office.jpg', '/photos/view-north.jpg', '/photos/lounge-2.jpg'],
   },
   {
     slug: 'enterprise-suites',
@@ -110,6 +197,24 @@ export const WORKSPACES: Workspace[] = [
     capacity: '20+ people',
     image: '/photos/enterprise.jpg',
     inherits: 'Private Office',
+    term: 'Tailored agreement',
+    idealFor: 'Established teams & corporates needing a home of their own',
+    intro:
+      'For an established team, a workspace is an extension of the brand — and a suite should feel like your own premises, not a tenancy inside someone else’s. Our Enterprise Suites are self-contained and built around the way your organisation actually works: a bespoke fit-out, a private entrance, your own amenities, and IT and AV configured to your standards. You get the independence and security of a dedicated office with the hospitality, facilities and community of Hexa Space carrying the weight of the everyday.',
+    highlights: [
+      {
+        title: 'Built around your organisation',
+        copy: 'A bespoke fit-out and space planning shaped to your team, your workflows and your brand — down to the furniture, finishes and layout.',
+      },
+      {
+        title: 'Complete privacy & independence',
+        copy: 'A self-contained suite with a dedicated, secure entrance, private amenities and kitchenette options — a home of your own within the floor.',
+      },
+      {
+        title: 'Enterprise-grade, fully managed',
+        copy: 'Bespoke IT, AV and network configuration, a dedicated account manager, and the ability to scale across multiple floors as you grow.',
+      },
+    ],
     inclusions: [
       'Self-contained, customisable suite',
       'Bespoke fit-out & space planning',
@@ -119,6 +224,7 @@ export const WORKSPACES: Workspace[] = [
       'Dedicated account manager',
       'Scalable across multiple floors',
     ],
+    gallery: ['/photos/enterprise.jpg', '/photos/private-office.jpg', '/photos/function-3.jpg'],
   },
 ];
 
