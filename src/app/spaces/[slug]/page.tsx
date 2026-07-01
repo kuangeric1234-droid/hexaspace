@@ -42,6 +42,10 @@ export default async function SpaceDetailPage({
   const bookable = ['meeting-rooms', 'media-studios', 'podcast-studio'].includes(space.slug);
   const bookHref = space.slug === 'meeting-rooms' ? '/book' : '/book?tab=studio';
 
+  // East (the Chinese Tearoom) is featured full-width on top; the rest fill the grid.
+  const featuredRoom = space.rooms?.find((r) => r.name === 'East') ?? space.rooms?.[0];
+  const otherRooms = space.rooms?.filter((r) => r !== featuredRoom) ?? [];
+
   return (
     <main>
       <PageHero
@@ -93,16 +97,56 @@ export default async function SpaceDetailPage({
       </section>
 
       {/* Individually bookable rooms (meeting rooms) */}
-      {space.rooms && (
+      {space.rooms && featuredRoom && (
         <section className="bg-paper py-20 md:py-28">
           <div className="container-page">
             <Reveal className="max-w-2xl">
               <p className="eyebrow">The rooms</p>
-              <h2 className="h-section mt-6">Six rooms, each with its own character.</h2>
+              <h2 className="h-section mt-6">Seven rooms, each with its own character.</h2>
             </Reveal>
 
+            {/* Featured — East, full width across all three columns */}
+            <Reveal className="mt-14">
+              <article className="group grid overflow-hidden border border-ink/10 lg:grid-cols-2">
+                <div className="relative aspect-[4/3] lg:aspect-auto lg:min-h-[440px] overflow-hidden">
+                  <Image
+                    src={featuredRoom.image}
+                    alt={`${featuredRoom.name} room`}
+                    fill
+                    sizes="(max-width:1024px) 100vw, 50vw"
+                    className="object-cover transition-transform duration-[1.2s] ease-lux group-hover:scale-105"
+                  />
+                  <span className="absolute left-0 top-0 bg-ink/80 text-paper font-heading uppercase tracking-nav text-[10px] px-3 py-2">
+                    {featuredRoom.price}
+                  </span>
+                </div>
+                <div className="flex flex-col p-8 md:p-10 lg:p-14">
+                  <div className="flex items-baseline justify-between gap-3">
+                    <h3 className="font-display font-extralight text-4xl md:text-5xl">{featuredRoom.name}</h3>
+                    <span className="font-heading uppercase tracking-nav text-[11px] text-muted">{featuredRoom.alt}</span>
+                  </div>
+                  <div className="mt-2.5 flex items-center gap-3">
+                    <span className="font-heading uppercase tracking-label text-[11px] text-hexa-green">{featuredRoom.capacity}</span>
+                    {featuredRoom.note && (
+                      <span className="font-heading uppercase tracking-label text-[11px] text-muted border-l border-ink/15 pl-3">{featuredRoom.note}</span>
+                    )}
+                  </div>
+                  <ul className="mt-6 space-y-2.5 flex-1">
+                    {featuredRoom.features.map((f) => (
+                      <li key={f} className="flex gap-3">
+                        <span className="mt-[9px] h-1 w-1 shrink-0 bg-hexa-green" />
+                        <span className="font-body text-[14px] leading-[1.6] text-charcoal">{f}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <Link href="/book" className="btn mt-8 w-full sm:w-auto sm:self-start">Book now</Link>
+                </div>
+              </article>
+            </Reveal>
+
+            {/* The other six */}
             <div className="mt-14 grid gap-x-8 gap-y-14 md:grid-cols-2 lg:grid-cols-3">
-              {space.rooms.map((room, i) => (
+              {otherRooms.map((room, i) => (
                 <Reveal key={room.name} delay={(i % 3) * 90}>
                   <article className="group flex h-full flex-col">
                     <div className="relative aspect-[4/3] overflow-hidden">

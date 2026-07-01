@@ -303,16 +303,16 @@ export const SPACES: Space[] = [
   {
     slug: 'meeting-rooms',
     name: 'Meeting Rooms',
-    kicker: 'Meetings · 4 – 12 guests',
-    capacity: '4 – 12 guests',
-    summary: 'Six named rooms, by the hour',
+    kicker: 'Meetings · 4 – 14 guests',
+    capacity: '4 – 14 guests',
+    summary: 'Seven named rooms, by the hour',
     description:
-      'Six individually named rooms — from an intimate consulting room to a traditional Chinese tearoom — each with floor-to-ceiling windows and broadcast-quality conferencing, bookable by the hour.',
+      'Seven individually named rooms — from an intimate consulting room to a traditional Chinese tearoom and a fourteen-seat boardroom — each with floor-to-ceiling windows and broadcast-quality conferencing, bookable by the hour.',
     intro:
       'A meeting room should make the work easier, not harder. Each of ours carries its own name and character, drawn from the four directions and the elements — light-filled and quiet, wired for effortless video conferencing, and bookable by the hour straight from the members app. Coffee, premium tea and catering arrive without you having to ask.',
     image: '/photos/meeting-room.jpg',
     inclusions: [
-      'Six individually named, bookable rooms',
+      'Seven individually named, bookable rooms',
       'Floor-to-ceiling windows & natural light',
       'State-of-the-art presentation & video-conferencing',
       'Hourly booking via the members app',
@@ -403,6 +403,21 @@ export const SPACES: Space[] = [
           'Floor-to-ceiling windows & natural light',
           'Curated catering on request',
           'Unlimited tea, great coffee & filtered water',
+        ],
+      },
+      {
+        name: 'Central',
+        alt: '中 Zhong',
+        note: 'Boardroom',
+        capacity: 'Up to 14 guests',
+        price: '$80 +GST / hour',
+        image: '/photos/room-central.jpg',
+        features: [
+          'Our largest boardroom — seats up to fourteen around a single table',
+          'State-of-the-art presentation & video-conferencing',
+          'Floor-to-ceiling windows showering the room in natural light',
+          'Curated catering on request',
+          'Unlimited premium tea, artisan coffee & filtered water',
         ],
       },
     ],
