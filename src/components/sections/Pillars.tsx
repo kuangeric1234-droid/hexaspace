@@ -1,47 +1,37 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import Reveal from '@/components/Reveal';
+import { getLocale } from '@/i18n/server';
+import { HOME } from '@/i18n/dictionaries/home';
 
-const PILLARS = [
-  {
-    name: 'Studio',
-    img: '/photos/studio.jpg',
-    copy: 'Private offices, dedicated desks and flexible space — composed environments designed for focus and daily excellence.',
-    href: '/workspaces',
-  },
-  {
-    name: 'Lounge',
-    img: '/photos/lounge-2.jpg',
-    copy: 'The members lounge — a place to meet, host and spend time together, with the warmth of considered hospitality.',
-    href: '/membership',
-  },
-  {
-    name: 'Atelier',
-    img: '/photos/atelier-main.jpg',
-    copy: 'A setting for ideas, events, media and podcasting — shared moments that reach beyond the working day.',
-    href: '/spaces',
-  },
+const PILLAR_META = [
+  { img: '/photos/studio.jpg', href: '/workspaces' },
+  { img: '/photos/lounge-2.jpg', href: '/community' },
+  { img: '/photos/atelier-main.jpg', href: '/spaces' },
 ];
 
-export default function Pillars() {
+export default async function Pillars() {
+  const locale = await getLocale();
+  const t = HOME[locale].pillars;
+
   return (
     <section id="about" className="bg-bone py-24 md:py-36">
       <div className="container-page">
         <Reveal className="max-w-3xl">
-          <p className="eyebrow">The Hexa system</p>
+          <p className="eyebrow">{t.eyebrow}</p>
           <h2 className="h-section mt-6">
-            Three settings for a
-            <br className="hidden md:block" /> considered working life.
+            {t.titleA}
+            <br className="hidden md:block" /> {t.titleB}
           </h2>
         </Reveal>
 
         <div className="mt-16 grid gap-px md:grid-cols-3 bg-ink/10">
-          {PILLARS.map((p, i) => (
+          {t.items.map((p, i) => (
             <Reveal key={p.name} delay={i * 120} className="group bg-bone">
-              <Link href={p.href} className="block">
+              <Link href={PILLAR_META[i].href} className="block">
                 <div className="relative aspect-[4/5] overflow-hidden">
                   <Image
-                    src={p.img}
+                    src={PILLAR_META[i].img}
                     alt={p.name}
                     fill
                     sizes="(max-width:768px) 100vw, 33vw"
@@ -51,7 +41,9 @@ export default function Pillars() {
                 <div className="pt-7 pb-2 px-5 md:px-6">
                   <h3 className="font-display font-extralight text-4xl">{p.name}</h3>
                   <p className="prose-body mt-4 max-w-sm">{p.copy}</p>
-                  <span className="btn-ghost mt-6">Explore {p.name}</span>
+                  <span className="btn-ghost mt-6">
+                    {t.explore} {p.name}
+                  </span>
                 </div>
               </Link>
             </Reveal>

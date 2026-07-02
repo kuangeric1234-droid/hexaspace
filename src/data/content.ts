@@ -3,6 +3,16 @@
 // Pricing & inclusions are editable here in one place; pages render from this.
 // ─────────────────────────────────────────────────────────────────────────────
 
+import type { Locale } from '@/i18n/config';
+import {
+  ZH_COMMON_INCLUSIONS,
+  ZH_EPISODES,
+  ZH_MEMBERSHIP_BENEFITS,
+  ZH_ROOMS,
+  ZH_SPACES,
+  ZH_WORKSPACES,
+} from './content.zh';
+
 export type Workspace = {
   slug: string;
   name: string;
@@ -545,3 +555,49 @@ export const MEMBERSHIP_BENEFITS: MembershipBenefit[] = [
     copy: 'Staffed reception, daily cleaning, end-of-trip facilities and a members app for access and bookings — the everyday, quietly taken care of.',
   },
 ];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Locale-aware getters.
+// English is the source of truth; Simplified-Chinese copy is merged in from
+// per-slug overlays (content.zh.ts) so non-copy fields — slug, image, price,
+// gallery — are never duplicated.
+// ─────────────────────────────────────────────────────────────────────────────
+
+export function getWorkspaces(locale: Locale): Workspace[] {
+  if (locale !== 'zh') return WORKSPACES;
+  return WORKSPACES.map((workspace) => {
+    const zh = ZH_WORKSPACES[workspace.slug];
+    return zh ? { ...workspace, ...zh } : workspace;
+  });
+}
+
+export function getSpaces(locale: Locale): Space[] {
+  if (locale !== 'zh') return SPACES;
+  return SPACES.map((space) => {
+    const zh = ZH_SPACES[space.slug];
+    const merged: Space = zh ? { ...space, ...zh } : { ...space };
+    if (space.rooms) {
+      merged.rooms = space.rooms.map((room) => {
+        const zhRoom = ZH_ROOMS[room.name];
+        return zhRoom ? { ...room, ...zhRoom } : room;
+      });
+    }
+    return merged;
+  });
+}
+
+export function getCommonInclusions(locale: Locale): string[] {
+  return locale === 'zh' ? ZH_COMMON_INCLUSIONS : COMMON_INCLUSIONS;
+}
+
+export function getMembershipBenefits(locale: Locale): MembershipBenefit[] {
+  return locale === 'zh' ? ZH_MEMBERSHIP_BENEFITS : MEMBERSHIP_BENEFITS;
+}
+
+export function getEpisodes(locale: Locale): Episode[] {
+  if (locale !== 'zh') return EPISODES;
+  return EPISODES.map((episode) => {
+    const zh = ZH_EPISODES[episode.number];
+    return zh ? { ...episode, ...zh } : episode;
+  });
+}

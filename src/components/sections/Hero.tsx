@@ -1,14 +1,19 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import TourButton from '@/components/enquiry/TourButton';
+import { getLocale } from '@/i18n/server';
+import { HOME } from '@/i18n/dictionaries/home';
 
-export default function Hero() {
+export default async function Hero() {
+  const locale = await getLocale();
+  const t = HOME[locale].hero;
+
   return (
     <section className="relative min-h-[100svh] flex flex-col justify-end overflow-hidden">
       {/* Full-bleed image */}
       <Image
         src="/photos/hero-main.jpg"
-        alt="Hexa Space interior, Box Hill"
+        alt={t.imageAlt}
         fill
         priority
         sizes="100vw"
@@ -19,30 +24,26 @@ export default function Hero() {
       {/* Copy — text-forward, words land first */}
       <div className="relative container-page pb-20 md:pb-28">
         <div className="max-w-4xl md:pl-6 lg:pl-10 pr-4">
-          <p className="eyebrow text-paper/70 animate-rise">Box Hill · Melbourne</p>
+          <p className="eyebrow text-paper/70 animate-rise">{t.eyebrow}</p>
           <h1 className="h-display text-paper mt-6 animate-rise" style={{ animationDelay: '120ms' }}>
-            A workspace,
+            {t.title}
             <br />
-            <span className="italic">elevated.</span>
+            <span className="italic">{t.titleItalic}</span>
           </h1>
           <p
             className="lead text-paper/85 mt-8 max-w-2xl animate-rise"
             style={{ animationDelay: '240ms' }}
           >
-            Hexa Space is a luxury workspace and members club — bringing clarity,
-            hospitality and intention to the working day, for those who value how
-            they work as much as what they do.
+            {t.lead}
           </p>
           <div
             className="mt-10 flex flex-wrap gap-4 animate-rise"
             style={{ animationDelay: '360ms' }}
           >
             <Link href="#workspaces" className="btn btn-light">
-              Explore Hexa Space
+              {t.explore}
             </Link>
-            <TourButton className="btn btn-light border-paper/40">
-              Book a private tour
-            </TourButton>
+            <TourButton className="btn btn-light border-paper/40">{t.tour}</TourButton>
           </div>
         </div>
       </div>

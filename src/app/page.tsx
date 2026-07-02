@@ -3,7 +3,7 @@ import Pillars from '@/components/sections/Pillars';
 import Workspaces from '@/components/sections/Workspaces';
 import Spaces from '@/components/sections/Spaces';
 import Podcast from '@/components/sections/Podcast';
-import Membership from '@/components/sections/Membership';
+import Community from '@/components/sections/Community';
 import Location from '@/components/sections/Location';
 
 export default function Home() {
@@ -14,7 +14,7 @@ export default function Home() {
       <Workspaces />
       <Spaces />
       <Podcast />
-      <Membership />
+      <Community />
       <Location />
     </main>
   );

@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import EnquireButton from '@/components/enquiry/EnquireButton';
 import TourButton from '@/components/enquiry/TourButton';
+import { getLocale } from '@/i18n/server';
+import { COMMON } from '@/i18n/dictionaries/common';
 
 type Props = {
   eyebrow?: string;
@@ -15,35 +17,43 @@ type Props = {
   tour?: boolean;
 };
 
-export default function CTASection({
-  eyebrow = 'Visit · Box Hill',
-  title = (
-    <>
-      Come and see <span className="italic">the space.</span>
-    </>
-  ),
-  body = 'The best way to understand Hexa Space is to stand in it. Arrange a private tour and we’ll show you the floor, the lounge and the studios.',
-  primaryLabel = 'Book a private tour',
+export default async function CTASection({
+  eyebrow,
+  title,
+  body,
+  primaryLabel,
   interest,
   href,
   tour,
 }: Props) {
+  const locale = await getLocale();
+  const t = COMMON[locale].cta;
+
+  const resolvedEyebrow = eyebrow ?? t.eyebrow;
+  const resolvedTitle = title ?? (
+    <>
+      {t.title} <span className="italic">{t.titleItalic}</span>
+    </>
+  );
+  const resolvedBody = body ?? t.body;
+  const resolvedPrimary = primaryLabel ?? t.primaryLabel;
+
   return (
     <section className="bg-ink text-paper py-24 md:py-32">
       <div className="container-page text-center max-w-3xl mx-auto">
-        <p className="eyebrow text-paper/50">{eyebrow}</p>
-        <h2 className="h-display mt-6">{title}</h2>
-        <p className="lead text-paper/80 mt-7 mx-auto max-w-xl">{body}</p>
+        <p className="eyebrow text-paper/50">{resolvedEyebrow}</p>
+        <h2 className="h-display mt-6">{resolvedTitle}</h2>
+        <p className="lead text-paper/80 mt-7 mx-auto max-w-xl">{resolvedBody}</p>
         <div className="mt-10 flex flex-wrap justify-center gap-4">
           {href ? (
             <Link href={href} className="btn btn-light">
-              {primaryLabel}
+              {resolvedPrimary}
             </Link>
           ) : tour ? (
-            <TourButton className="btn btn-light">{primaryLabel}</TourButton>
+            <TourButton className="btn btn-light">{resolvedPrimary}</TourButton>
           ) : (
             <EnquireButton interest={interest} className="btn btn-light">
-              {primaryLabel}
+              {resolvedPrimary}
             </EnquireButton>
           )}
           <Link href="tel:+61406016666" className="btn btn-light border-paper/30">

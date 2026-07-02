@@ -8,14 +8,14 @@ import {
   AvailabilityBooking,
   CreateBookingResult,
   fromDec,
-  longDate,
   overlaps,
   timeLabel,
   toDec,
 } from '@/lib/booking';
+import { useLocale } from '@/i18n/LocaleProvider';
+import { BOOKING } from '@/i18n/dictionaries/booking';
 
 const MEMBERS_URL = 'https://members.hexaspace.com.au';
-const STEPS = ['Booking', 'Your details', 'Payment', 'Confirmed'] as const;
 const ALL_DAY_DISCOUNT = 0.3; // 30% off all-day public bookings
 
 // Selectable half-hourly times across operating hours.
@@ -46,6 +46,8 @@ export default function BookingFlow({
   onClose,
   onBooked,
 }: Props) {
+  const locale = useLocale();
+  const t = BOOKING[locale].flow;
   const [step, setStep] = useState(0);
   const [form, setForm] = useState({
     date,
@@ -87,8 +89,8 @@ export default function BookingFlow({
   function next() {
     setError('');
     if (step === 0) {
-      if (dur <= 0) return setError('End time must be after the start time.');
-      if (clash) return setError('That time overlaps an existing booking. Please choose another slot.');
+      if (dur <= 0) return setError(t.errEndAfterStart);
+      if (clash) return setError(t.errOverlap);
       return setStep(1);
     }
     if (step === 1) return submitDetails();
@@ -96,8 +98,8 @@ export default function BookingFlow({
   }
 
   async function submitDetails() {
-    if (!form.name.trim()) return setError('Please enter your full name.');
-    if (!form.email.trim()) return setError('Please enter your email.');
+    if (!form.name.trim()) return setError(t.errName);
+    if (!form.email.trim()) return setError(t.errEmail);
     setChecking(true);
     setError('');
     try {
@@ -139,7 +141,7 @@ export default function BookingFlow({
       });
       const json = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setError(json.error || 'Sorry — we couldn’t complete your booking. Please try again.');
+        setError(json.error || t.errGeneric);
         setSubmitting(false);
         return;
       }
@@ -147,7 +149,7 @@ export default function BookingFlow({
       onBooked({ resourceId: resource.id, date: form.date, startTime: form.startTime, endTime: form.endTime });
       setStep(3);
     } catch {
-      setError('Network error. Please try again.');
+      setError(t.errNetwork);
     } finally {
       setSubmitting(false);
     }
@@ -157,14 +159,14 @@ export default function BookingFlow({
     <div
       role="dialog"
       aria-modal="true"
-      aria-label="New booking"
+      aria-label={t.aria}
       className="fixed inset-0 z-[100] overflow-y-auto bg-paper"
     >
       {/* Top bar with stepper */}
       <div className="sticky top-0 z-10 bg-paper/95 backdrop-blur border-b border-ink/10">
         <div className="container-page flex items-center justify-between h-16">
-          <span className="font-heading uppercase tracking-[0.2em] text-sm">New Booking</span>
-          <button type="button" onClick={onClose} aria-label="Close" className="p-2 text-muted hover:text-ink transition-colors">
+          <span className="font-heading uppercase tracking-[0.2em] text-sm">{t.newBooking}</span>
+          <button type="button" onClick={onClose} aria-label={t.close} className="p-2 text-muted hover:text-ink transition-colors">
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden>
               <path d="M4 4 L16 16 M16 4 L4 16" stroke="currentColor" strokeWidth="1.3" />
             </svg>
@@ -180,44 +182,44 @@ export default function BookingFlow({
           <div className="grid gap-8 lg:grid-cols-[1.4fr_1fr] lg:gap-12 max-w-5xl mx-auto">
             {/* Setup */}
             <div className="border border-ink/10 p-7 md:p-9">
-              <h2 className="font-display font-extralight text-2xl">Booking setup</h2>
+              <h2 className="font-display font-extralight text-2xl">{t.setupTitle}</h2>
               <div className="mt-7 space-y-6">
                 <div className="grid gap-5 sm:grid-cols-3">
-                  <Labeled label="Date">
+                  <Labeled label={t.date}>
                     <input type="date" value={form.date} onChange={set('date')} className={inputCls} />
                   </Labeled>
                   {allDay ? (
                     <div className="sm:col-span-2">
-                      <span className="eyebrow">Session</span>
+                      <span className="eyebrow">{t.session}</span>
                       <div className={`${inputCls} flex items-center justify-between`}>
-                        <span>All day · {timeLabel('09:00')} – {timeLabel('17:00')}</span>
-                        <span className="font-heading uppercase tracking-nav text-[10px] text-hexa-green">30% off</span>
+                        <span>{t.allDay} · {timeLabel('09:00')} – {timeLabel('17:00')}</span>
+                        <span className="font-heading uppercase tracking-nav text-[10px] text-hexa-green">{t.thirtyOff}</span>
                       </div>
                     </div>
                   ) : (
                     <>
-                      <Labeled label="From">
+                      <Labeled label={t.from}>
                         <select value={form.startTime} onChange={set('startTime')} className={inputCls}>
-                          {TIME_OPTIONS.map((t) => (
-                            <option key={t} value={t}>{timeLabel(t)}</option>
+                          {TIME_OPTIONS.map((tm) => (
+                            <option key={tm} value={tm}>{timeLabel(tm)}</option>
                           ))}
                         </select>
                       </Labeled>
-                      <Labeled label="To">
+                      <Labeled label={t.to}>
                         <select value={form.endTime} onChange={set('endTime')} className={inputCls}>
-                          {TIME_OPTIONS.map((t) => (
-                            <option key={t} value={t}>{timeLabel(t)}</option>
+                          {TIME_OPTIONS.map((tm) => (
+                            <option key={tm} value={tm}>{timeLabel(tm)}</option>
                           ))}
                         </select>
                       </Labeled>
                     </>
                   )}
                 </div>
-                <Labeled label="Title (optional)">
-                  <input value={form.title} onChange={set('title')} placeholder="e.g. Client meeting" className={inputCls} />
+                <Labeled label={t.titleOpt}>
+                  <input value={form.title} onChange={set('title')} placeholder={t.titlePh} className={inputCls} />
                 </Labeled>
-                <Labeled label="Description (optional)">
-                  <textarea value={form.description} onChange={set('description')} rows={3} placeholder="Anything we should know…" className={`${inputCls} resize-none`} />
+                <Labeled label={t.descOpt}>
+                  <textarea value={form.description} onChange={set('description')} rows={3} placeholder={t.descPh} className={`${inputCls} resize-none`} />
                 </Labeled>
               </div>
             </div>
@@ -230,21 +232,21 @@ export default function BookingFlow({
         {step === 1 && (
           <div className="grid gap-8 lg:grid-cols-[1.4fr_1fr] lg:gap-12 max-w-5xl mx-auto">
             <div className="border border-ink/10 p-7 md:p-9">
-              <h2 className="font-display font-extralight text-2xl">Your details</h2>
+              <h2 className="font-display font-extralight text-2xl">{t.detailsTitle}</h2>
               <p className="prose-body mt-2 text-[13px]">
-                No account needed to book. If you’re already a member we’ll recognise your email.
+                {t.detailsNote}
               </p>
               <div className="mt-7 grid gap-6 sm:grid-cols-2">
-                <Labeled label="Full name" required>
+                <Labeled label={t.fullName} required>
                   <input value={form.name} onChange={set('name')} autoComplete="name" className={inputCls} />
                 </Labeled>
-                <Labeled label="Email" required>
+                <Labeled label={t.email} required>
                   <input type="email" value={form.email} onChange={set('email')} autoComplete="email" className={inputCls} />
                 </Labeled>
-                <Labeled label="Phone">
+                <Labeled label={t.phone}>
                   <input type="tel" value={form.phone} onChange={set('phone')} autoComplete="tel" className={inputCls} />
                 </Labeled>
-                <Labeled label="Company (optional)">
+                <Labeled label={t.companyOpt}>
                   <input value={form.company} onChange={set('company')} autoComplete="organization" className={inputCls} />
                 </Labeled>
               </div>
@@ -258,35 +260,35 @@ export default function BookingFlow({
             <div className="space-y-6">
               {accountState === 'existing' && (
                 <div className="border border-hexa-green/40 bg-hexa-green/5 p-6">
-                  <p className="eyebrow text-hexa-green">Welcome back</p>
+                  <p className="eyebrow text-hexa-green">{t.welcomeBack}</p>
                   <p className="prose-body mt-2 text-ink text-[14px]">
-                    <strong>{form.email}</strong> is already registered with Hexa Space. Log in to the
-                    members portal to manage bookings and credits — or continue and we’ll link this
-                    booking to your account.
+                    <strong>{form.email}</strong>
+                    {t.existingBody}
                   </p>
                   <a href={MEMBERS_URL} className="btn-ghost mt-4" target="_blank" rel="noreferrer">
-                    Log in to members portal
+                    {t.loginPortal}
                   </a>
                 </div>
               )}
 
               <div className="border border-ink/10 p-7 md:p-9">
-                <h2 className="font-display font-extralight text-2xl">Payment</h2>
+                <h2 className="font-display font-extralight text-2xl">{t.paymentTitle}</h2>
                 <div className="mt-3 inline-flex items-center gap-2 font-heading uppercase tracking-nav text-[10px] text-hexa-green">
-                  <Lock /> Secure card payment — coming soon
+                  <Lock /> {t.securePayment}
                 </div>
                 <p className="prose-body mt-4 text-[14px]">
-                  Card payment via Stripe is being set up. For now we’ll <strong>reserve your room</strong>{' '}
-                  and our team confirms within one business day; you’ll be invoiced for{' '}
-                  {total != null ? `A$${total.toFixed(2)} +GST` : 'the session'}.
+                  {t.paymentBody1}<strong>{t.paymentReserve}</strong>
+                  {t.paymentBody2}
+                  {total != null ? `A$${total.toFixed(2)} +GST` : t.theSession}
+                  {t.paymentBody3}
                 </p>
 
                 {/* Stripe-ready scaffold (disabled until keys are live) */}
                 <div className="mt-6 space-y-4 opacity-50 pointer-events-none select-none">
-                  <Labeled label="Cardholder">
-                    <input disabled placeholder="Cardholder name" className={inputCls} />
+                  <Labeled label={t.cardholder}>
+                    <input disabled placeholder={t.cardholderPh} className={inputCls} />
                   </Labeled>
-                  <Labeled label="Card details">
+                  <Labeled label={t.cardDetails}>
                     <input disabled placeholder="1234 1234 1234 1234" className={inputCls} />
                   </Labeled>
                   <div className="grid grid-cols-3 gap-4">
@@ -308,23 +310,25 @@ export default function BookingFlow({
                 <path d="M6 13.5 L11 18 L20 8" stroke="#7F8B2F" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </div>
-            <p className="eyebrow text-hexa-green mt-6">Booking reserved</p>
-            <h2 className="h-display text-[clamp(2rem,5vw,3.2rem)] mt-4">You’re booked in.</h2>
+            <p className="eyebrow text-hexa-green mt-6">{t.reservedKicker}</p>
+            <h2 className="h-display text-[clamp(2rem,5vw,3.2rem)] mt-4">{t.reservedTitle}</h2>
             <p className="prose-body mt-5 max-w-sm mx-auto">
-              We’ve reserved <strong>{result.resourceName}</strong> and a confirmation email is on its way to{' '}
-              <strong>{form.email}</strong>. Your reference is <strong>{result.reference}</strong>.
+              {t.reservedBody1}<strong>{result.resourceName}</strong>
+              {t.reservedBody2}<strong>{form.email}</strong>
+              {t.reservedBody3}<strong>{result.reference}</strong>
+              {t.reservedBody4}
             </p>
             <div className="mt-7 inline-block border border-ink/10 px-6 py-4 text-left">
-              <p className="eyebrow">When</p>
+              <p className="eyebrow">{t.when}</p>
               <p className="font-display font-extralight text-xl mt-1">
-                {longDate(new Date(result.date + 'T00:00:00'))}
+                {t.formatLongDate(new Date(result.date + 'T00:00:00'))}
               </p>
               <p className="prose-body text-[14px] mt-1">
                 {timeLabel(result.startTime)} – {timeLabel(result.endTime)}
               </p>
             </div>
             <div className="mt-9">
-              <button type="button" onClick={onClose} className="btn">Done</button>
+              <button type="button" onClick={onClose} className="btn">{t.done}</button>
             </div>
           </div>
         )}
@@ -337,7 +341,7 @@ export default function BookingFlow({
               onClick={() => (step === 0 ? onClose() : setStep((s) => s - 1))}
               className="btn-ghost"
             >
-              {step === 0 ? 'Cancel' : 'Back'}
+              {step === 0 ? t.cancel : t.back}
             </button>
             <div className="flex items-center gap-5">
               {error && <p className="font-body text-[13px] text-red-700 max-w-xs text-right">{error}</p>}
@@ -347,9 +351,9 @@ export default function BookingFlow({
                 disabled={checking || submitting}
                 className="btn disabled:opacity-50"
               >
-                {step === 0 && 'Continue'}
-                {step === 1 && (checking ? 'Checking…' : 'Continue')}
-                {step === 2 && (submitting ? 'Reserving…' : 'Reserve booking')}
+                {step === 0 && t.continue}
+                {step === 1 && (checking ? t.checkingBtn : t.continue)}
+                {step === 2 && (submitting ? t.reserving : t.reserveBooking)}
               </button>
             </div>
           </div>
@@ -391,42 +395,44 @@ function Summary({
   allDay?: boolean;
   showPolicy?: boolean;
 }) {
+  const locale = useLocale();
+  const t = BOOKING[locale].flow;
   const saved = allDay && gross != null && total != null ? gross - total : 0;
   return (
     <aside className="border border-ink/10 p-7 md:p-8 self-start">
-      <h3 className="font-display font-extralight text-2xl">Booking summary</h3>
+      <h3 className="font-display font-extralight text-2xl">{t.summaryTitle}</h3>
       <div className="relative mt-5 aspect-[4/3] overflow-hidden">
         <Image src={resource.image} alt={resource.name} fill sizes="320px" className="object-cover" />
       </div>
       <div className="mt-5 space-y-4 text-[14px]">
-        <Row label="Space" value={resource.name} />
-        <Row label="Date" value={longDate(new Date(form.date + 'T00:00:00'))} />
-        <Row label="Time" value={`${timeLabel(form.startTime)} – ${timeLabel(form.endTime)}`} />
-        <Row label="Duration" value={allDay ? 'All day (9 AM – 5 PM)' : dur > 0 ? `${dur} hour${dur === 1 ? '' : 's'}` : '—'} />
+        <Row label={t.space} value={resource.name} />
+        <Row label={t.date} value={t.formatLongDate(new Date(form.date + 'T00:00:00'))} />
+        <Row label={t.time} value={`${timeLabel(form.startTime)} – ${timeLabel(form.endTime)}`} />
+        <Row label={t.duration} value={allDay ? t.allDayValue : dur > 0 ? t.hours(dur) : '—'} />
         {allDay && gross != null && (
           <>
-            <Row label="Rate" value={`A$${gross.toFixed(2)}`} />
+            <Row label={t.rate} value={`A$${gross.toFixed(2)}`} />
             <div className="flex items-start justify-between gap-4">
-              <span className="eyebrow shrink-0 text-hexa-green">All-day discount</span>
-              <span className="font-body text-hexa-green text-right">−30% (−A${saved.toFixed(2)})</span>
+              <span className="eyebrow shrink-0 text-hexa-green">{t.allDayDiscount}</span>
+              <span className="font-body text-hexa-green text-right">{t.discountValue(saved.toFixed(2))}</span>
             </div>
           </>
         )}
         <div className="border-t border-ink/10 pt-4 flex items-baseline justify-between">
-          <span className="eyebrow">Total</span>
+          <span className="eyebrow">{t.total}</span>
           <span className="font-display font-extralight text-2xl">
-            {total != null ? `A$${total.toFixed(2)}` : 'POA'}
-            {total != null && <span className="font-body text-xs text-muted ml-1">+GST</span>}
+            {total != null ? `A$${total.toFixed(2)}` : t.poa}
+            {total != null && <span className="font-body text-xs text-muted ml-1">{t.gst}</span>}
           </span>
         </div>
       </div>
 
       {showPolicy && (
         <div className="mt-6 border-t border-ink/10 pt-5">
-          <p className="eyebrow">Cancellation policy</p>
+          <p className="eyebrow">{t.policyTitle}</p>
           <ul className="mt-3 space-y-1.5 prose-body text-[13px]">
-            <li>· 24h or more before start — no fee</li>
-            <li>· Less than 24h before start — 100% fee</li>
+            <li>{t.policy1}</li>
+            <li>{t.policy2}</li>
           </ul>
         </div>
       )}
@@ -444,9 +450,11 @@ function Row({ label, value }: { label: string; value: string }) {
 }
 
 function Stepper({ step }: { step: number }) {
+  const locale = useLocale();
+  const steps = BOOKING[locale].flow.steps;
   return (
     <div className="flex items-center gap-2 sm:gap-4">
-      {STEPS.map((label, i) => {
+      {steps.map((label, i) => {
         const done = i < step;
         const active = i === step;
         return (
@@ -463,7 +471,7 @@ function Stepper({ step }: { step: number }) {
                 {label}
               </span>
             </div>
-            {i < STEPS.length - 1 && <span className="h-px flex-1 bg-ink/10 hidden sm:block" />}
+            {i < steps.length - 1 && <span className="h-px flex-1 bg-ink/10 hidden sm:block" />}
           </div>
         );
       })}

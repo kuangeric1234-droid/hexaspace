@@ -7,7 +7,9 @@ import Inclusions from '@/components/Inclusions';
 import CTASection from '@/components/CTASection';
 import Reveal from '@/components/Reveal';
 import EnquireButton from '@/components/enquiry/EnquireButton';
-import { SPACES } from '@/data/content';
+import { SPACES, getSpaces } from '@/data/content';
+import { getLocale } from '@/i18n/server';
+import { PAGES } from '@/i18n/dictionaries/pages';
 
 export function generateStaticParams() {
   return SPACES.map((s) => ({ slug: s.slug }));
@@ -19,7 +21,8 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const space = SPACES.find((s) => s.slug === slug);
+  const locale = await getLocale();
+  const space = getSpaces(locale).find((s) => s.slug === slug);
   if (!space) return {};
   return {
     title: `${space.name} — Hexa Space`,
@@ -33,17 +36,24 @@ export default async function SpaceDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const space = SPACES.find((s) => s.slug === slug);
+  const locale = await getLocale();
+  const t = PAGES[locale].spaceDetail;
+  const spaces = getSpaces(locale);
+  const space = spaces.find((s) => s.slug === slug);
   if (!space) notFound();
 
-  const others = SPACES.filter((s) => s.slug !== slug);
+  const others = spaces.filter((s) => s.slug !== slug);
+  // The value posted to /api/enquire stays in English.
+  const enInterest = SPACES.find((s) => s.slug === slug)?.name;
 
   // Meeting rooms + studios are bookable online; the function space stays enquiry-based.
   const bookable = ['meeting-rooms', 'media-studios', 'podcast-studio'].includes(space.slug);
   const bookHref = space.slug === 'meeting-rooms' ? '/book' : '/book?tab=studio';
 
   // East (the Chinese Tearoom) is featured full-width on top; the rest fill the grid.
-  const featuredRoom = space.rooms?.find((r) => r.name === 'East') ?? space.rooms?.[0];
+  // In zh the room's name/alt are swapped, so match either field.
+  const featuredRoom =
+    space.rooms?.find((r) => r.name === 'East' || r.alt === 'East') ?? space.rooms?.[0];
   const otherRooms = space.rooms?.filter((r) => r !== featuredRoom) ?? [];
 
   return (
@@ -60,7 +70,7 @@ export default async function SpaceDetailPage({
         <div className="container-page py-5 flex flex-wrap items-center justify-between gap-4">
           <div className="flex flex-wrap items-center gap-x-8 gap-y-2">
             <span className="font-heading uppercase tracking-label text-[11px] text-paper/50">
-              Capacity
+              {t.capacity}
             </span>
             <span className="font-display font-extralight text-xl">{space.capacity}</span>
           </div>
@@ -73,7 +83,7 @@ export default async function SpaceDetailPage({
             </Link>
           ) : (
             <EnquireButton
-              interest={space.name}
+              interest={enInterest}
               className="font-heading uppercase tracking-nav text-[11px] border border-paper px-6 py-3 hover:bg-paper hover:text-ink transition-colors duration-500 ease-lux"
             >
               {space.bookingLabel}
@@ -86,12 +96,12 @@ export default async function SpaceDetailPage({
       <section className="bg-bone py-20 md:py-28">
         <div className="container-page grid gap-12 lg:grid-cols-[1fr_1fr] lg:gap-20">
           <Reveal>
-            <p className="eyebrow">Overview</p>
-            <h2 className="h-section mt-6">A space that works as hard as you do.</h2>
+            <p className="eyebrow">{t.overviewEyebrow}</p>
+            <h2 className="h-section mt-6">{t.overviewTitle}</h2>
             <p className="lead mt-7">{space.intro}</p>
           </Reveal>
           <Reveal delay={120} className="lg:pt-2">
-            <Inclusions label="What’s included" items={space.inclusions} />
+            <Inclusions label={t.whatsIncluded} items={space.inclusions} />
           </Reveal>
         </div>
       </section>
@@ -101,8 +111,8 @@ export default async function SpaceDetailPage({
         <section className="bg-paper py-20 md:py-28">
           <div className="container-page">
             <Reveal className="max-w-2xl">
-              <p className="eyebrow">The rooms</p>
-              <h2 className="h-section mt-6">Seven rooms, each with its own character.</h2>
+              <p className="eyebrow">{t.roomsEyebrow}</p>
+              <h2 className="h-section mt-6">{t.roomsTitle}</h2>
             </Reveal>
 
             {/* Featured — East, full width across all three columns */}
@@ -111,7 +121,7 @@ export default async function SpaceDetailPage({
                 <div className="relative aspect-[4/3] lg:aspect-auto lg:min-h-[440px] overflow-hidden">
                   <Image
                     src={featuredRoom.image}
-                    alt={`${featuredRoom.name} room`}
+                    alt={t.roomAlt(featuredRoom.name)}
                     fill
                     sizes="(max-width:1024px) 100vw, 50vw"
                     className="object-cover transition-transform duration-[1.2s] ease-lux group-hover:scale-105"
@@ -139,7 +149,7 @@ export default async function SpaceDetailPage({
                       </li>
                     ))}
                   </ul>
-                  <Link href="/book" className="btn mt-8 w-full sm:w-auto sm:self-start">Book now</Link>
+                  <Link href="/book" className="btn mt-8 w-full sm:w-auto sm:self-start">{t.bookNow}</Link>
                 </div>
               </article>
             </Reveal>
@@ -152,7 +162,7 @@ export default async function SpaceDetailPage({
                     <div className="relative aspect-[4/3] overflow-hidden">
                       <Image
                         src={room.image}
-                        alt={`${room.name} room`}
+                        alt={t.roomAlt(room.name)}
                         fill
                         sizes="(max-width:768px) 100vw, 33vw"
                         className="object-cover transition-transform duration-[1.2s] ease-lux group-hover:scale-105"
@@ -194,7 +204,7 @@ export default async function SpaceDetailPage({
                       </ul>
 
                       <Link href="/book" className="btn mt-7 w-full">
-                        Book now
+                        {t.bookNow}
                       </Link>
                     </div>
                   </article>
@@ -210,8 +220,8 @@ export default async function SpaceDetailPage({
         <section className="bg-paper py-20 md:py-28">
           <div className="container-page">
             <Reveal className="max-w-2xl">
-              <p className="eyebrow">Configurations</p>
-              <h2 className="h-section mt-6">One room, arranged your way.</h2>
+              <p className="eyebrow">{t.configEyebrow}</p>
+              <h2 className="h-section mt-6">{t.configTitle}</h2>
             </Reveal>
             <div className="mt-14 grid gap-px bg-ink/10 sm:grid-cols-2 lg:grid-cols-4">
               {space.configurations.map((c, i) => (
@@ -239,7 +249,7 @@ export default async function SpaceDetailPage({
         <section className="bg-bone py-20 md:py-28">
           <div className="container-page">
             <Reveal>
-              <p className="eyebrow">The space</p>
+              <p className="eyebrow">{t.galleryEyebrow}</p>
             </Reveal>
             <div className="mt-10 grid gap-4 md:gap-6 md:grid-cols-3">
               {space.gallery.map((src, i) => (
@@ -273,19 +283,19 @@ export default async function SpaceDetailPage({
         eyebrow={space.kicker}
         title={
           <>
-            Ready to <span className="italic">book?</span>
+            {t.ctaTitle} <span className="italic">{t.ctaTitleItalic}</span>
           </>
         }
-        body="Tell us your dates and what you have in mind — our team will confirm availability and tailor the space to suit."
+        body={t.ctaBody}
         primaryLabel={space.bookingLabel}
-        interest={space.name}
+        interest={enInterest}
         href={bookable ? bookHref : undefined}
       />
 
       {/* Explore other spaces */}
       <section className="bg-paper py-16 md:py-20 border-t border-ink/10">
         <div className="container-page">
-          <p className="eyebrow">More spaces</p>
+          <p className="eyebrow">{t.moreEyebrow}</p>
           <div className="mt-8 grid gap-px bg-ink/10 sm:grid-cols-3">
             {others.map((s) => (
               <Link
@@ -298,7 +308,7 @@ export default async function SpaceDetailPage({
                 </span>
                 <h3 className="font-display font-extralight text-2xl mt-3">{s.name}</h3>
                 <p className="prose-body mt-2">{s.summary}</p>
-                <span className="btn-ghost mt-5">View</span>
+                <span className="btn-ghost mt-5">{t.view}</span>
               </Link>
             ))}
           </div>

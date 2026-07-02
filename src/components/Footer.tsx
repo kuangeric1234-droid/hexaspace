@@ -1,54 +1,52 @@
 import Link from 'next/link';
 import EnquireButton from '@/components/enquiry/EnquireButton';
+import { getSpaces, getWorkspaces } from '@/data/content';
+import { getLocale } from '@/i18n/server';
+import { COMMON } from '@/i18n/dictionaries/common';
 
-const COLS = [
-  {
-    title: 'Workspaces',
-    links: [
-      { label: 'Virtual Office', href: '/workspaces#virtual-office' },
-      { label: 'Flexible Desk', href: '/workspaces#flexible-desk' },
-      { label: 'Dedicated Desk', href: '/workspaces#dedicated-desk' },
-      { label: 'Private Office', href: '/workspaces#private-office' },
-      { label: 'Enterprise Suites', href: '/workspaces#enterprise-suites' },
-    ],
-  },
-  {
-    title: 'Spaces',
-    links: [
-      { label: 'The Function Space', href: '/spaces#function-space' },
-      { label: 'Meeting Rooms', href: '/spaces#meeting-rooms' },
-      { label: 'Media Studios', href: '/spaces#media-studios' },
-      { label: 'Podcast Studio', href: '/spaces#podcast-studio' },
-    ],
-  },
-  {
-    title: 'Hexa',
-    links: [
-      { label: 'Membership', href: '/membership' },
-      { label: 'Podcast', href: '/podcast' },
-      { label: 'About', href: '/about' },
-      { label: 'Contact', enquire: true },
-      { label: 'Member Login', href: 'https://members.hexaspace.com.au' },
-    ],
-  },
-];
+export default async function Footer() {
+  const locale = await getLocale();
+  const t = COMMON[locale];
 
-export default function Footer() {
+  const cols = [
+    {
+      title: t.footer.colWorkspaces,
+      links: getWorkspaces(locale).map((w) => ({
+        label: w.name,
+        href: `/workspaces#${w.slug}`,
+      })),
+    },
+    {
+      title: t.footer.colSpaces,
+      links: getSpaces(locale).map((s) => ({
+        label: s.name,
+        href: `/spaces#${s.slug}`,
+      })),
+    },
+    {
+      title: t.footer.colHexa,
+      links: [
+        { label: t.footer.community, href: '/community' },
+        { label: t.footer.merch, href: '/merch' },
+        { label: t.footer.podcast, href: '/podcast' },
+        { label: t.footer.about, href: '/about' },
+        { label: t.footer.contact, enquire: true as const },
+        { label: t.footer.memberLogin, href: 'https://members.hexaspace.com.au' },
+      ],
+    },
+  ];
+
   return (
     <footer className="bg-charcoal text-paper">
       {/* App teaser band */}
       <div className="border-b border-paper/10">
         <div className="container-page py-16 md:py-20 grid gap-10 md:grid-cols-[1.2fr_1fr] md:items-center">
           <div>
-            <p className="eyebrow text-paper/50">Coming soon — app.hexaspace.com.au</p>
+            <p className="eyebrow text-paper/50">{t.footer.appKicker}</p>
             <h3 className="h-display mt-5 text-paper">
-              Your space, <span className="italic">orchestrated.</span>
+              {t.footer.appTitle} <span className="italic">{t.footer.appTitleItalic}</span>
             </h3>
-            <p className="prose-body text-paper/60 mt-6 max-w-xl">
-              A members companion that manages the everyday — bookings, onboarding,
-              correspondence and community — so the work of running your workspace
-              quietly takes care of itself.
-            </p>
+            <p className="prose-body text-paper/60 mt-6 max-w-xl">{t.footer.appBody}</p>
           </div>
           <div className="flex flex-wrap gap-4 md:justify-end">
             <span className="btn btn-light pointer-events-none opacity-70">App Store</span>
@@ -62,7 +60,7 @@ export default function Footer() {
         <div>
           <Link
             href="/"
-            aria-label="Hexa Space home"
+            aria-label={t.nav.homeAria}
             className="font-heading uppercase text-paper text-2xl tracking-[0.22em] leading-none whitespace-nowrap"
           >
             Hexa&nbsp;Space
@@ -83,19 +81,19 @@ export default function Footer() {
           </p>
         </div>
 
-        {COLS.map((col) => (
+        {cols.map((col) => (
           <div key={col.title}>
             <p className="eyebrow text-paper/40">{col.title}</p>
             <ul className="mt-5 space-y-3">
               {col.links.map((l) => (
                 <li key={l.label}>
-                  {'enquire' in l ? (
+                  {'enquire' in l && l.enquire ? (
                     <EnquireButton className="font-body text-[14px] text-paper/65 hover:text-paper transition-colors">
                       {l.label}
                     </EnquireButton>
                   ) : (
                     <Link
-                      href={l.href}
+                      href={'href' in l ? l.href! : '/'}
                       className="font-body text-[14px] text-paper/65 hover:text-paper transition-colors"
                     >
                       {l.label}
@@ -112,7 +110,7 @@ export default function Footer() {
       <div className="border-t border-paper/10">
         <div className="container-page py-7 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <p className="font-heading uppercase tracking-nav text-[10px] text-paper/40">
-            © {new Date().getFullYear()} Hexa Space · A Hexa Group company
+            {t.footer.legal.replace('{year}', String(new Date().getFullYear()))}
           </p>
           <div className="flex gap-6">
             {['Instagram', 'LinkedIn', 'Facebook'].map((s) => (

@@ -6,37 +6,44 @@ import Inclusions from '@/components/Inclusions';
 import CTASection from '@/components/CTASection';
 import Reveal from '@/components/Reveal';
 import EnquireButton from '@/components/enquiry/EnquireButton';
-import { EPISODES, PLATFORMS, SPACES } from '@/data/content';
+import { PLATFORMS, getEpisodes, getSpaces } from '@/data/content';
+import { getLocale } from '@/i18n/server';
+import { PAGES } from '@/i18n/dictionaries/pages';
 
-export const metadata: Metadata = {
-  title: 'The Podcast — Hexa Space',
-  description:
-    'The Hexa Space podcast — conversations with the founders, makers and thinkers who share our floor. Recorded in our broadcast-ready studio in Box Hill, Melbourne.',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale();
+  const t = PAGES[locale].podcastPage;
+  return {
+    title: t.metaTitle,
+    description: t.metaDescription,
+  };
+}
 
-const studio = SPACES.find((s) => s.slug === 'podcast-studio')!;
-const [featured, ...rest] = EPISODES;
+export default async function PodcastPage() {
+  const locale = await getLocale();
+  const t = PAGES[locale].podcastPage;
+  const studio = getSpaces(locale).find((s) => s.slug === 'podcast-studio')!;
+  const [featured, ...rest] = getEpisodes(locale);
 
-export default function PodcastPage() {
   return (
     <main>
       <PageHero
-        kicker="The Podcast"
+        kicker={t.heroKicker}
         title={
           <>
-            Conversations
+            {t.heroTitle}
             <br />
-            from <span className="italic">our floor.</span>
+            {t.heroTitleB}<span className="italic">{t.heroTitleItalic}</span>
           </>
         }
-        intro="The Hexa Space podcast puts the founders, makers and thinkers who share our space at the centre of the story — recorded in our broadcast-ready studio in Box Hill."
+        intro={t.heroIntro}
         image="/photos/podcast-studio.jpg"
       />
 
       {/* Listen on */}
       <section className="bg-paper border-b border-ink/10">
         <div className="container-page py-6 flex flex-wrap items-center gap-x-8 gap-y-3">
-          <span className="eyebrow">Listen on</span>
+          <span className="eyebrow">{t.listenOn}</span>
           {PLATFORMS.map((p) => (
             <Link
               key={p}
@@ -53,7 +60,7 @@ export default function PodcastPage() {
       <section className="bg-bone py-20 md:py-28">
         <div className="container-page">
           <Reveal className="max-w-3xl">
-            <p className="eyebrow">Latest episode</p>
+            <p className="eyebrow">{t.latestEyebrow}</p>
           </Reveal>
           <Reveal delay={100}>
             <div className="mt-8 grid gap-10 lg:gap-16 lg:grid-cols-2 lg:items-center">
@@ -66,7 +73,7 @@ export default function PodcastPage() {
                   className="object-cover"
                 />
                 <button
-                  aria-label="Play episode"
+                  aria-label={t.playAria}
                   className="absolute inset-0 grid place-items-center group"
                 >
                   <span className="grid h-20 w-20 place-items-center rounded-full bg-paper/90 backdrop-blur transition-transform duration-500 ease-lux group-hover:scale-110">
@@ -78,7 +85,7 @@ export default function PodcastPage() {
               </div>
               <div>
                 <span className="font-heading uppercase tracking-label text-[11px] text-hexa-green">
-                  Episode {featured.number} · {featured.duration}
+                  {t.episode(featured.number)} · {featured.duration}
                 </span>
                 <h2 className="h-display text-[clamp(2rem,4.5vw,3.6rem)] mt-4">
                   {featured.title}
@@ -88,7 +95,7 @@ export default function PodcastPage() {
                 </p>
                 <p className="prose-body mt-4 max-w-md">{featured.blurb}</p>
                 <Link href="#" className="btn mt-8">
-                  Play episode
+                  {t.playEpisode}
                 </Link>
               </div>
             </div>
@@ -100,8 +107,8 @@ export default function PodcastPage() {
       <section className="bg-paper py-20 md:py-28">
         <div className="container-page">
           <Reveal>
-            <p className="eyebrow">More episodes</p>
-            <h2 className="h-section mt-6">The back catalogue.</h2>
+            <p className="eyebrow">{t.moreEyebrow}</p>
+            <h2 className="h-section mt-6">{t.backCatalogue}</h2>
           </Reveal>
 
           <div className="mt-12 border-t border-ink/10">
@@ -150,24 +157,22 @@ export default function PodcastPage() {
             <div className="max-w-xl">
               <p className="eyebrow text-paper/50">{studio.kicker}</p>
               <h2 className="h-display mt-6">
-                Record your
+                {t.recordTitle}
                 <br />
-                <span className="italic">own.</span>
+                <span className="italic">{t.recordTitleItalic}</span>
               </h2>
               <p className="lead text-paper/80 mt-7">
-                The same studio we record in is yours to book — soundproofed,
-                beautifully lit and fully equipped, with in-house production to
-                take you from idea to published episode.
+                {t.recordLead}
               </p>
               <div className="mt-8">
                 <Inclusions items={studio.inclusions} light />
               </div>
               <div className="mt-9 flex flex-wrap gap-4">
                 <EnquireButton interest="The Podcast Studio" className="btn btn-light">
-                  Book the studio
+                  {t.bookStudio}
                 </EnquireButton>
                 <Link href="/spaces#podcast-studio" className="btn btn-light border-paper/30">
-                  Studio details
+                  {t.studioDetails}
                 </Link>
               </div>
             </div>
@@ -176,14 +181,14 @@ export default function PodcastPage() {
       </section>
 
       <CTASection
-        eyebrow="Be a guest"
+        eyebrow={t.ctaEyebrow}
         title={
           <>
-            Have a story <span className="italic">to tell?</span>
+            {t.ctaTitle} <span className="italic">{t.ctaTitleItalic}</span>
           </>
         }
-        body="We’re always looking for founders, makers and thinkers from our community to join us on the show. Tell us what you’re working on."
-        primaryLabel="Pitch yourself as a guest"
+        body={t.ctaBody}
+        primaryLabel={t.ctaPrimary}
       />
     </main>
   );

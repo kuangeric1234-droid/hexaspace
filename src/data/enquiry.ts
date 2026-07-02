@@ -22,6 +22,7 @@ export const ENQUIRY_GROUPS: EnquiryGroup[] = [
     label: 'Other',
     options: [
       { value: 'Membership', label: 'Membership' },
+      { value: 'Merchandise', label: 'Merchandise' },
       { value: 'A private tour', label: 'A private tour' },
       { value: 'Appearing on the podcast', label: 'Appearing on the podcast' },
       { value: 'Something else', label: 'Something else' },

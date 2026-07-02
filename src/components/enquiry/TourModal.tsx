@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { timeLabel, ymd } from '@/lib/booking';
+import { useLocale } from '@/i18n/LocaleProvider';
+import { BOOKING } from '@/i18n/dictionaries/booking';
 
 // Tour slots: 9:00am–5:00pm, every 30 minutes.
 const TIMES = (() => {
@@ -13,9 +15,6 @@ const TIMES = (() => {
   }
   return out;
 })();
-
-const WD = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-const MO = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 /** The next `n` weekdays (Mon–Fri), starting tomorrow. */
 function nextWeekdays(n: number): Date[] {
@@ -34,6 +33,8 @@ function nextWeekdays(n: number): Date[] {
 type Status = 'idle' | 'sending' | 'sent' | 'error';
 
 export default function TourModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const locale = useLocale();
+  const t = BOOKING[locale].tourModal;
   const panelRef = useRef<HTMLDivElement>(null);
   const days = useMemo(() => nextWeekdays(15), []);
   const [status, setStatus] = useState<Status>('idle');
@@ -67,9 +68,9 @@ export default function TourModal({ open, onClose }: { open: boolean; onClose: (
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!form.name.trim()) return setError('Please enter your name.');
-    if (!form.email.trim()) return setError('Please enter your email.');
-    if (!form.date) return setError('Please choose a day.');
+    if (!form.name.trim()) return setError(t.errName);
+    if (!form.email.trim()) return setError(t.errEmail);
+    if (!form.date) return setError(t.errDay);
     setStatus('sending');
     setError('');
     try {
@@ -80,37 +81,38 @@ export default function TourModal({ open, onClose }: { open: boolean; onClose: (
       });
       const json = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setError(json.error || 'Something went wrong. Please try again.');
+        setError(json.error || t.errGeneric);
         setStatus('error');
         return;
       }
       setStatus('sent');
     } catch {
-      setError('Network error. Please try again, or email info@hexaspace.com.au.');
+      setError(t.errNetwork);
       setStatus('error');
     }
   }
 
   if (!open) return null;
 
-  const dayLabel = (d: Date) => `${WD[d.getDay()]}, ${d.getDate()} ${MO[d.getMonth()]}`;
+  const dayLabel = (d: Date) =>
+    t.dayLabel(t.weekdaysShort[d.getDay()], d.getDate(), t.monthsShort[d.getMonth()]);
 
   return (
     <div
       role="dialog"
       aria-modal="true"
-      aria-label="Book a private tour"
+      aria-label={t.aria}
       className="fixed inset-0 z-[100] flex items-stretch justify-center overflow-y-auto p-0 sm:items-center sm:p-6"
     >
-      <button type="button" aria-label="Close" onClick={onClose} className="absolute inset-0 bg-ink/60 backdrop-blur-sm animate-fade" />
+      <button type="button" aria-label={t.close} onClick={onClose} className="absolute inset-0 bg-ink/60 backdrop-blur-sm animate-fade" />
 
       <div ref={panelRef} tabIndex={-1} className="relative w-full max-w-xl bg-paper shadow-2xl outline-none sm:my-auto animate-rise">
         <div className="flex items-start justify-between gap-6 border-b border-ink/10 px-7 py-6 md:px-10 md:py-7">
           <div>
-            <p className="eyebrow text-hexa-green">Visit · Box Hill</p>
-            <h2 className="font-display font-extralight text-3xl mt-2">Book a private tour</h2>
+            <p className="eyebrow text-hexa-green">{t.kicker}</p>
+            <h2 className="font-display font-extralight text-3xl mt-2">{t.title}</h2>
           </div>
-          <button type="button" onClick={onClose} aria-label="Close" className="-mr-2 -mt-1 p-2 text-muted hover:text-ink transition-colors">
+          <button type="button" onClick={onClose} aria-label={t.close} className="-mr-2 -mt-1 p-2 text-muted hover:text-ink transition-colors">
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden>
               <path d="M4 4 L16 16 M16 4 L4 16" stroke="currentColor" strokeWidth="1.3" />
             </svg>
@@ -120,33 +122,36 @@ export default function TourModal({ open, onClose }: { open: boolean; onClose: (
         <div className="px-7 py-7 md:px-10 md:py-9">
           {status === 'sent' ? (
             <div>
-              <p className="eyebrow text-hexa-green">Tour booked</p>
-              <h3 className="font-display font-extralight text-3xl mt-4">See you soon.</h3>
+              <p className="eyebrow text-hexa-green">{t.sentKicker}</p>
+              <h3 className="font-display font-extralight text-3xl mt-4">{t.sentTitle}</h3>
               <p className="prose-body mt-4 max-w-sm">
-                Your tour is booked for{' '}
+                {t.sentBody1}
                 <strong>
                   {(() => {
                     const d = new Date(form.date + 'T00:00:00');
-                    return `${WD[d.getDay()]}, ${d.getDate()} ${MO[d.getMonth()]}`;
-                  })()}{' '}
-                  at {timeLabel(form.time)}
+                    return dayLabel(d);
+                  })()}
+                  {t.sentAt}
+                  {timeLabel(form.time)}
                 </strong>
-                . We’ve sent the details to {form.email} and our team will confirm shortly.
+                {t.sentBody2}
+                {form.email}
+                {t.sentBody3}
               </p>
-              <button onClick={onClose} type="button" className="btn mt-8">Done</button>
+              <button onClick={onClose} type="button" className="btn mt-8">{t.done}</button>
             </div>
           ) : (
             <form onSubmit={onSubmit} className="space-y-6" noValidate>
               <div className="grid gap-6 sm:grid-cols-2">
-                <Field label="Name" required value={form.name} onChange={set('name')} autoComplete="name" />
-                <Field label="Business (optional)" value={form.business} onChange={set('business')} autoComplete="organization" />
-                <Field label="Email" type="email" required value={form.email} onChange={set('email')} autoComplete="email" />
-                <Field label="Phone" type="tel" value={form.phone} onChange={set('phone')} autoComplete="tel" />
+                <Field label={t.name} required value={form.name} onChange={set('name')} autoComplete="name" />
+                <Field label={t.businessOpt} value={form.business} onChange={set('business')} autoComplete="organization" />
+                <Field label={t.email} type="email" required value={form.email} onChange={set('email')} autoComplete="email" />
+                <Field label={t.phone} type="tel" value={form.phone} onChange={set('phone')} autoComplete="tel" />
               </div>
 
               <div className="grid gap-6 sm:grid-cols-2">
                 <label className="block">
-                  <span className="eyebrow">Preferred day <span className="text-hexa-green">*</span></span>
+                  <span className="eyebrow">{t.preferredDay} <span className="text-hexa-green">*</span></span>
                   <select value={form.date} onChange={set('date')} className={selectCls}>
                     {days.map((d) => (
                       <option key={ymd(d)} value={ymd(d)}>{dayLabel(d)}</option>
@@ -154,29 +159,29 @@ export default function TourModal({ open, onClose }: { open: boolean; onClose: (
                   </select>
                 </label>
                 <label className="block">
-                  <span className="eyebrow">Preferred time <span className="text-hexa-green">*</span></span>
+                  <span className="eyebrow">{t.preferredTime} <span className="text-hexa-green">*</span></span>
                   <select value={form.time} onChange={set('time')} className={selectCls}>
-                    {TIMES.map((t) => (
-                      <option key={t} value={t}>{timeLabel(t)}</option>
+                    {TIMES.map((tm) => (
+                      <option key={tm} value={tm}>{timeLabel(tm)}</option>
                     ))}
                   </select>
                 </label>
               </div>
-              <p className="prose-body text-[12px] -mt-1">Tours run weekdays, 9:00 am – 5:00 pm.</p>
+              <p className="prose-body text-[12px] -mt-1">{t.hoursNote}</p>
 
               <label className="block">
-                <span className="eyebrow">Anything we should know? (optional)</span>
-                <textarea value={form.message} onChange={set('message')} rows={2} placeholder="What you’re looking for, team size…" className={`${selectCls} resize-none`} />
+                <span className="eyebrow">{t.anythingOpt}</span>
+                <textarea value={form.message} onChange={set('message')} rows={2} placeholder={t.anythingPh} className={`${selectCls} resize-none`} />
               </label>
 
               {status === 'error' && <p className="font-body text-[14px] text-red-700">{error}</p>}
 
               <div className="flex flex-wrap items-center gap-5 pt-1">
                 <button type="submit" disabled={status === 'sending'} className="btn disabled:opacity-50">
-                  {status === 'sending' ? 'Booking…' : 'Book my tour'}
+                  {status === 'sending' ? t.booking : t.bookMyTour}
                 </button>
                 <p className="prose-body text-[12px]">
-                  Or call{' '}
+                  {t.orCall}{' '}
                   <a href="tel:+61406016666" className="text-ink hover:text-hexa-green transition-colors">+61 406 016 666</a>
                 </p>
               </div>

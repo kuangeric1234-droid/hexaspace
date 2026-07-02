@@ -20,9 +20,34 @@ const config: Config = {
       },
       fontFamily: {
         // mapped to next/font CSS variables in layout.tsx
-        display: ['var(--font-display)', 'Times New Roman', 'serif'], // Big Daily Short
-        heading: ['var(--font-heading)', 'Arial', 'sans-serif'], // Rework Micro Semibold
-        body: ['var(--font-body)', 'Arial', 'sans-serif'], // GT America Thin
+        // CJK families follow the brand faces so Chinese copy falls back gracefully
+        display: [
+          'var(--font-display)',
+          'Times New Roman',
+          'Songti SC',
+          'Noto Serif SC',
+          'STSong',
+          'SimSun',
+          'serif',
+        ], // Big Daily Short
+        heading: [
+          'var(--font-heading)',
+          'Arial',
+          'PingFang SC',
+          'Hiragino Sans GB',
+          'Noto Sans SC',
+          'Microsoft YaHei',
+          'sans-serif',
+        ], // Rework Micro Semibold
+        body: [
+          'var(--font-body)',
+          'Arial',
+          'PingFang SC',
+          'Hiragino Sans GB',
+          'Noto Sans SC',
+          'Microsoft YaHei',
+          'sans-serif',
+        ], // GT America Thin
       },
       letterSpacing: {
         nav: '0.18em',

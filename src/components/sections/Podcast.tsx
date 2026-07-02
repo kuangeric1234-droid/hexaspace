@@ -1,8 +1,13 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import EnquireButton from '@/components/enquiry/EnquireButton';
+import { getLocale } from '@/i18n/server';
+import { HOME } from '@/i18n/dictionaries/home';
 
-export default function Podcast() {
+export default async function Podcast() {
+  const locale = await getLocale();
+  const t = HOME[locale].podcast;
+
   return (
     <section id="podcast" className="bg-charcoal text-paper py-20 md:py-28 lg:py-32">
       <div className="container-page">
@@ -11,7 +16,7 @@ export default function Podcast() {
           <div className="relative aspect-[4/5] md:aspect-[4/5] lg:aspect-[3/4] overflow-hidden">
             <Image
               src="/photos/podcast-studio.jpg"
-              alt="Hexa Space podcast studio"
+              alt={t.imageAlt}
               fill
               sizes="(max-width:768px) 100vw, 50vw"
               className="object-cover"
@@ -23,28 +28,20 @@ export default function Podcast() {
 
           {/* Copy side */}
           <div className="max-w-xl">
-            <p className="eyebrow text-paper/50">New — The Podcast Studio</p>
+            <p className="eyebrow text-paper/50">{t.eyebrow}</p>
             <h2 className="h-display mt-6">
-              Find your
+              {t.title}
               <br />
-              <span className="italic">voice.</span>
+              <span className="italic">{t.titleItalic}</span>
             </h2>
-            <p className="lead text-paper/80 mt-7">
-              A broadcast-ready studio inside Hexa Space — soundproofed,
-              beautifully lit and fully equipped for podcasting, interviews
-              and long-form conversation.
-            </p>
-            <p className="prose-body text-paper/55 mt-5 max-w-md">
-              Members record, edit and publish in-house. We also produce
-              the Hexa Space podcast — conversations with the founders,
-              makers and thinkers who share our floor.
-            </p>
+            <p className="lead text-paper/80 mt-7">{t.lead}</p>
+            <p className="prose-body text-paper/55 mt-5 max-w-md">{t.body}</p>
             <div className="mt-9 flex flex-wrap gap-4">
               <EnquireButton interest="The Podcast Studio" className="btn btn-light">
-                Book the studio
+                {t.book}
               </EnquireButton>
               <Link href="#" className="btn btn-light border-paper/30">
-                Listen
+                {t.listen}
               </Link>
             </div>
           </div>

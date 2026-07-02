@@ -14,12 +14,13 @@ import {
   AvailabilityBooking,
   fromDec,
   hourLabel,
-  longDate,
   overlaps,
   timeLabel,
   toDec,
   ymd,
 } from '@/lib/booking';
+import { useLocale } from '@/i18n/LocaleProvider';
+import { BOOKING } from '@/i18n/dictionaries/booking';
 import BookingFlow from './BookingFlow';
 
 const HOUR_H = 62;
@@ -31,6 +32,8 @@ const LABEL_HOURS = Array.from({ length: DAY_END - DAY_START + 1 }, (_, i) => DA
 type Slot = { resource: BookableResource; date: string; startTime: string; endTime: string; allDay?: boolean };
 
 export default function BookingCalendar({ initialTab = 'meeting' }: { initialTab?: BookableGroup }) {
+  const locale = useLocale();
+  const t = BOOKING[locale].calendar;
   const [tab, setTab] = useState<BookableGroup>(initialTab);
   const [day, setDay] = useState<Date>(() => new Date());
   const [bookings, setBookings] = useState<AvailabilityBooking[]>([]);
@@ -125,25 +128,25 @@ export default function BookingCalendar({ initialTab = 'meeting' }: { initialTab
       {/* Tabs + heading */}
       <div className="flex flex-wrap items-end justify-between gap-6">
         <div>
-          <p className="eyebrow">Public Calendar</p>
+          <p className="eyebrow">{t.publicCalendar}</p>
           <div className="mt-3 flex items-baseline gap-6">
-            {BOOKABLE_TABS.map((t) => (
+            {BOOKABLE_TABS.map((tb) => (
               <button
-                key={t.key}
+                key={tb.key}
                 type="button"
-                onClick={() => setTab(t.key)}
+                onClick={() => setTab(tb.key)}
                 className={`font-display font-extralight text-3xl md:text-4xl transition-colors ${
-                  tab === t.key ? 'text-ink' : 'text-muted/40 hover:text-muted'
+                  tab === tb.key ? 'text-ink' : 'text-muted/40 hover:text-muted'
                 }`}
               >
-                {t.label}
-                {tab === t.key && <span className="block h-px bg-hexa-green mt-2" />}
+                {t.tabs[tb.key]}
+                {tab === tb.key && <span className="block h-px bg-hexa-green mt-2" />}
               </button>
             ))}
           </div>
           <p className="prose-body mt-4 text-[13px]">
-            {resources.length} {resources.length === 1 ? 'space' : 'spaces'} ·{' '}
-            {loading ? 'checking availability…' : 'click an open slot to book'}
+            {t.spacesCount(resources.length)} ·{' '}
+            {loading ? t.checking : t.clickToBook}
           </p>
         </div>
 
@@ -154,18 +157,18 @@ export default function BookingCalendar({ initialTab = 'meeting' }: { initialTab
             onClick={() => setDay(new Date())}
             className="font-heading uppercase tracking-nav text-[10px] border border-ink/15 px-4 py-2.5 hover:bg-ink hover:text-paper transition-colors"
           >
-            Today
+            {t.today}
           </button>
           <div className="flex items-center border border-ink/15">
-            <button type="button" onClick={() => shiftDay(-1)} aria-label="Previous day" className="p-2.5 hover:bg-bone transition-colors">
+            <button type="button" onClick={() => shiftDay(-1)} aria-label={t.prevDay} className="p-2.5 hover:bg-bone transition-colors">
               <Chevron dir="left" />
             </button>
-            <button type="button" onClick={() => shiftDay(1)} aria-label="Next day" className="p-2.5 border-l border-ink/15 hover:bg-bone transition-colors">
+            <button type="button" onClick={() => shiftDay(1)} aria-label={t.nextDay} className="p-2.5 border-l border-ink/15 hover:bg-bone transition-colors">
               <Chevron dir="right" />
             </button>
           </div>
           <span className="font-display font-extralight text-xl md:text-2xl whitespace-nowrap">
-            {longDate(day)}
+            {t.formatLongDate(day)}
           </span>
         </div>
       </div>
@@ -177,7 +180,7 @@ export default function BookingCalendar({ initialTab = 'meeting' }: { initialTab
           <div className="w-16 shrink-0 border-r border-ink/10">
             <div style={{ height: headerH }} className="border-b border-ink/10" />
             <div style={{ height: ALLDAY_H }} className="border-b border-ink/10 flex items-center justify-end pr-2">
-              <span className="font-heading uppercase tracking-nav text-[9px] text-muted">All day</span>
+              <span className="font-heading uppercase tracking-nav text-[9px] text-muted">{t.allDay}</span>
             </div>
             {/* Hour labels sit just below each gridline; +1 row gives 5 PM a box under it */}
             <div className="relative" style={{ height: (HOURS.length + 1) * HOUR_H }}>
@@ -220,7 +223,7 @@ export default function BookingCalendar({ initialTab = 'meeting' }: { initialTab
                         </span>
                       )}
                       <span className="font-heading uppercase tracking-nav text-[9px] text-hexa-green">
-                        {room.rateLabel}
+                        {room.rateLabel === 'POA' ? t.poa : room.rateLabel}
                       </span>
                     </div>
                   </div>
@@ -244,7 +247,7 @@ export default function BookingCalendar({ initialTab = 'meeting' }: { initialTab
                           busy ? 'text-muted/40' : 'text-hexa-green'
                         }`}
                       >
-                        {busy ? '—' : 'All day · 30% off'}
+                        {busy ? '—' : t.allDayOff}
                       </span>
                     </button>
                   );
@@ -280,7 +283,7 @@ export default function BookingCalendar({ initialTab = 'meeting' }: { initialTab
                         className="absolute left-1 right-1 bg-charcoal text-paper/90 px-2 py-1 overflow-hidden pointer-events-none"
                         style={{ top, height }}
                       >
-                        <div className="font-heading uppercase tracking-nav text-[9px] truncate">Booked</div>
+                        <div className="font-heading uppercase tracking-nav text-[9px] truncate">{t.booked}</div>
                         <div className="text-[10px] opacity-80 truncate">{timeLabel(b.startTime)}</div>
                       </div>
                     );

@@ -6,34 +6,45 @@ import Inclusions from '@/components/Inclusions';
 import CTASection from '@/components/CTASection';
 import Reveal from '@/components/Reveal';
 import EnquireButton from '@/components/enquiry/EnquireButton';
-import { SPACES } from '@/data/content';
+import { SPACES, getSpaces } from '@/data/content';
+import { getLocale } from '@/i18n/server';
+import { PAGES } from '@/i18n/dictionaries/pages';
 
-export const metadata: Metadata = {
-  title: 'Spaces — Hexa Space',
-  description:
-    'The Function Space, meeting rooms, media studios and podcast studio at Hexa Space, Box Hill — for events from 20 to 150, meetings from 4 to 26, and broadcast-ready production.',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale();
+  const t = PAGES[locale].spacesPage;
+  return {
+    title: t.metaTitle,
+    description: t.metaDescription,
+  };
+}
 
-export default function SpacesPage() {
+export default async function SpacesPage() {
+  const locale = await getLocale();
+  const t = PAGES[locale].spacesPage;
+  const spaces = getSpaces(locale);
+  // Enquiry values posted to the API stay in English, keyed by slug.
+  const enName = (slug: string) => SPACES.find((s) => s.slug === slug)?.name;
+
   return (
     <main>
       <PageHero
-        kicker="The Spaces"
+        kicker={t.heroKicker}
         title={
           <>
-            A place to host,
+            {t.heroTitle}
             <br />
-            gather <span className="italic">and create.</span>
+            {t.heroTitleB}<span className="italic">{t.heroTitleItalic}</span>
           </>
         }
-        intro="More than desks — a versatile function space, light-filled meeting rooms and purpose-built studios for media and podcasting, all under one roof in Box Hill."
+        intro={t.heroIntro}
         image="/photos/event-space.jpg"
       />
 
       {/* Index */}
       <section className="bg-paper border-b border-ink/10">
         <div className="container-page py-6 flex flex-wrap gap-x-8 gap-y-3">
-          {SPACES.map((s) => (
+          {spaces.map((s) => (
             <Link
               key={s.slug}
               href={`#${s.slug}`}
@@ -47,7 +58,7 @@ export default function SpacesPage() {
 
       {/* Spaces — alternating rows */}
       <section className="bg-paper">
-        {SPACES.map((s, i) => {
+        {spaces.map((s, i) => {
           const flip = i % 2 === 1;
           return (
             <Reveal key={s.slug}>
@@ -78,12 +89,12 @@ export default function SpacesPage() {
                       <p className="prose-body mt-5 max-w-md">{s.description}</p>
 
                       <div className="mt-8 border-t border-ink/10 pt-8">
-                        <Inclusions label="What’s included" items={s.inclusions} />
+                        <Inclusions label={t.whatsIncluded} items={s.inclusions} />
                       </div>
 
                       <div className="mt-9 flex flex-wrap items-center gap-4">
                         <Link href={`/spaces/${s.slug}`} className="btn">
-                          View {s.name}
+                          {t.viewSpace(s.name)}
                         </Link>
                         {['meeting-rooms', 'media-studios', 'podcast-studio'].includes(s.slug) ? (
                           <Link
@@ -93,7 +104,7 @@ export default function SpacesPage() {
                             {s.bookingLabel}
                           </Link>
                         ) : (
-                          <EnquireButton interest={s.name} className="btn-ghost self-center">
+                          <EnquireButton interest={enName(s.slug)} className="btn-ghost self-center">
                             {s.bookingLabel}
                           </EnquireButton>
                         )}
@@ -108,14 +119,14 @@ export default function SpacesPage() {
       </section>
 
       <CTASection
-        eyebrow="Host with Hexa"
+        eyebrow={t.ctaEyebrow}
         title={
           <>
-            Plan your <span className="italic">event.</span>
+            {t.ctaTitle} <span className="italic">{t.ctaTitleItalic}</span>
           </>
         }
-        body="From an intimate boardroom session to a 150-guest launch, our team will help you shape the space, the catering and the run of show."
-        primaryLabel="Enquire about hosting"
+        body={t.ctaBody}
+        primaryLabel={t.ctaPrimary}
         interest="The Function Space"
       />
     </main>

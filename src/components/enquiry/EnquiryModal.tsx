@@ -2,6 +2,8 @@
 
 import { useEffect, useRef } from 'react';
 import EnquiryForm from '@/components/EnquiryForm';
+import { useLocale } from '@/i18n/LocaleProvider';
+import { BOOKING } from '@/i18n/dictionaries/booking';
 
 type Props = {
   open: boolean;
@@ -10,6 +12,8 @@ type Props = {
 };
 
 export default function EnquiryModal({ open, interest, onClose }: Props) {
+  const locale = useLocale();
+  const t = BOOKING[locale].enquiryModal;
   const panelRef = useRef<HTMLDivElement>(null);
 
   // Lock body scroll + close on Escape while open.
@@ -34,13 +38,13 @@ export default function EnquiryModal({ open, interest, onClose }: Props) {
     <div
       role="dialog"
       aria-modal="true"
-      aria-label="Make an enquiry"
+      aria-label={t.aria}
       className="fixed inset-0 z-[100] flex items-stretch justify-center overflow-y-auto p-0 sm:items-center sm:p-6"
     >
       {/* Backdrop */}
       <button
         type="button"
-        aria-label="Close enquiry"
+        aria-label={t.closeAria}
         onClick={onClose}
         className="absolute inset-0 bg-ink/60 backdrop-blur-sm animate-fade"
       />
@@ -54,13 +58,13 @@ export default function EnquiryModal({ open, interest, onClose }: Props) {
       >
         <div className="flex items-start justify-between gap-6 border-b border-ink/10 px-7 py-6 md:px-10 md:py-7">
           <div>
-            <p className="eyebrow text-hexa-green">Hexa Space</p>
-            <h2 className="font-display font-extralight text-3xl mt-2">Make an enquiry</h2>
+            <p className="eyebrow text-hexa-green">{t.kicker}</p>
+            <h2 className="font-display font-extralight text-3xl mt-2">{t.title}</h2>
           </div>
           <button
             type="button"
             onClick={onClose}
-            aria-label="Close"
+            aria-label={t.close}
             className="-mr-2 -mt-1 p-2 text-muted hover:text-ink transition-colors"
           >
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden>

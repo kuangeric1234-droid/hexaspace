@@ -4,52 +4,34 @@ import PageHero from '@/components/PageHero';
 import CTASection from '@/components/CTASection';
 import Reveal from '@/components/Reveal';
 import EnquireButton from '@/components/enquiry/EnquireButton';
+import { getLocale } from '@/i18n/server';
+import { PAGES } from '@/i18n/dictionaries/pages';
 
-export const metadata: Metadata = {
-  title: 'About — Hexa Space',
-  description:
-    'Hexa Space is a luxury workspace and members club in Box Hill, Melbourne — part of the Hexa Group. Built on people, place, culture and legacy.',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale();
+  const t = PAGES[locale].about;
+  return {
+    title: t.metaTitle,
+    description: t.metaDescription,
+  };
+}
 
-const PILLARS = [
-  {
-    title: 'People',
-    copy: 'Success through collaboration. We hero the members, founders and teams who share our floor — and host them the way you’d host a guest, not a tenant.',
-  },
-  {
-    title: 'Place',
-    copy: 'Distinctly Box Hill, distinctly Melbourne’s east. We’re embedded in our locale — its energy, its diversity and its growing role as a place to build a business.',
-  },
-  {
-    title: 'Culture',
-    copy: 'A sensitive balance of Anglo and Asian influence runs through everything — from the tearoom to the programming — reflecting the community we build for.',
-  },
-  {
-    title: 'Legacy',
-    copy: 'As part of the Hexa Group, we build spaces meant to endure — considered, quietly luxurious, and made to matter for years rather than months.',
-  },
-];
+export default async function AboutPage() {
+  const locale = await getLocale();
+  const t = PAGES[locale].about;
 
-const STATS = [
-  { value: '5', label: 'Workspace memberships' },
-  { value: '6', label: 'Named meeting rooms' },
-  { value: '20–100', label: 'Event capacity' },
-  { value: 'Global', label: 'Ucommune network' },
-];
-
-export default function AboutPage() {
   return (
     <main>
       <PageHero
-        kicker="About"
+        kicker={t.heroKicker}
         title={
           <>
-            More than a
+            {t.heroTitle}
             <br />
-            <span className="italic">workspace.</span>
+            <span className="italic">{t.heroTitleItalic}</span>
           </>
         }
-        intro="Hexa Space is a luxury workspace and members club in the heart of Box Hill — bringing clarity, hospitality and intention to the working day."
+        intro={t.heroIntro}
         image="/photos/hero-main.jpg"
       />
 
@@ -57,30 +39,21 @@ export default function AboutPage() {
       <section className="bg-bone py-20 md:py-28">
         <div className="container-page grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-20">
           <Reveal>
-            <p className="eyebrow">Our story</p>
+            <p className="eyebrow">{t.storyEyebrow}</p>
             <h2 className="h-section mt-6">
-              A considered home for Melbourne’s east.
+              {t.storyTitle}
             </h2>
           </Reveal>
           <Reveal delay={120} className="lg:pt-2">
             <div className="space-y-5 max-w-xl">
               <p className="lead">
-                We set out to build the kind of workspace we wanted to work in —
-                one that felt less like a serviced office and more like a private
-                members club.
+                {t.storyLead}
               </p>
               <p className="prose-body">
-                Spread across a light-filled floor on Whitehorse Road, Hexa Space
-                pairs architecturally designed offices and desks with a hosted
-                lounge, six named meeting rooms, media and podcast studios, and a
-                function space for everything from board dinners to product
-                launches. Every detail — the fluted joinery, the natural light,
-                the premium tea service — is there to make the work feel effortless.
+                {t.storyBody1}
               </p>
               <p className="prose-body">
-                As part of the Hexa Group, a diversified Australian property and
-                funds management group, we’re built on a simple belief: that
-                extraordinary spaces are built on people, place, culture and legacy.
+                {t.storyBody2}
               </p>
             </div>
           </Reveal>
@@ -91,11 +64,11 @@ export default function AboutPage() {
       <section id="ethos" className="bg-paper py-20 md:py-28">
         <div className="container-page">
           <Reveal className="max-w-3xl">
-            <p className="eyebrow">What we’re built on</p>
-            <h2 className="h-section mt-6">People. Place. Culture. Legacy.</h2>
+            <p className="eyebrow">{t.pillarsEyebrow}</p>
+            <h2 className="h-section mt-6">{t.pillarsTitle}</h2>
           </Reveal>
           <div className="mt-16 grid gap-x-12 gap-y-12 md:grid-cols-2">
-            {PILLARS.map((p, i) => (
+            {t.pillars.map((p, i) => (
               <Reveal key={p.title} delay={(i % 2) * 120}>
                 <div className="border-t border-ink pt-6">
                   <span className="font-heading uppercase tracking-label text-[11px] text-muted">
@@ -119,7 +92,7 @@ export default function AboutPage() {
             <div className="relative aspect-[4/5] lg:aspect-[3/4] overflow-hidden">
               <Image
                 src="/photos/about-2.jpg"
-                alt="Hexa Space reception, Box Hill"
+                alt={t.placeImageAlt}
                 fill
                 sizes="(max-width:1024px) 100vw, 50vw"
                 className="object-cover"
@@ -128,22 +101,17 @@ export default function AboutPage() {
               <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-charcoal/70" />
             </div>
             <div className="max-w-xl">
-              <p className="eyebrow text-paper/50">The place · Box Hill</p>
+              <p className="eyebrow text-paper/50">{t.placeEyebrow}</p>
               <h2 className="h-display mt-6">
-                Rooted in
+                {t.placeTitle}
                 <br />
-                <span className="italic">the locale.</span>
+                <span className="italic">{t.placeTitleItalic}</span>
               </h2>
               <p className="lead text-paper/80 mt-7">
-                Box Hill is one of Melbourne’s most dynamic centres — a meeting
-                point of cultures, transport and ambition. Hexa Space sits at its
-                heart on Level 4, 830 Whitehorse Road, with floor-to-ceiling
-                windows framing the skyline.
+                {t.placeLead}
               </p>
               <p className="prose-body text-paper/55 mt-5 max-w-md">
-                It’s a short walk from the station, surrounded by some of the
-                city’s best food, and connected — through our Ucommune
-                partnership — to a workspace network that spans the globe.
+                {t.placeBody}
               </p>
             </div>
           </div>
@@ -154,7 +122,7 @@ export default function AboutPage() {
       <section className="bg-paper py-16 md:py-24">
         <div className="container-page">
           <div className="grid gap-px bg-ink/10 sm:grid-cols-2 lg:grid-cols-4">
-            {STATS.map((s, i) => (
+            {t.stats.map((s, i) => (
               <Reveal key={s.label} delay={i * 90} className="bg-paper">
                 <div className="p-8 text-center">
                   <p className="font-display font-extralight text-[clamp(2.4rem,5vw,4rem)] leading-none">
@@ -172,20 +140,17 @@ export default function AboutPage() {
       <section className="bg-bone py-20 md:py-28">
         <div className="container-page grid gap-10 lg:grid-cols-[1fr_auto] lg:items-end">
           <Reveal>
-            <p className="eyebrow">Part of something larger</p>
+            <p className="eyebrow">{t.groupEyebrow}</p>
             <h2 className="h-section mt-6 max-w-2xl">
-              A Hexa Group company.
+              {t.groupTitle}
             </h2>
             <p className="prose-body mt-6 max-w-xl">
-              Hexa Space is the workspace arm of the Hexa Group — a diversified
-              Australian property and funds management group creating enduring
-              value through innovation and collaboration. It’s a lineage that
-              shapes how we design, host and build for the long term.
+              {t.groupBody}
             </p>
           </Reveal>
           <Reveal delay={120}>
             <EnquireButton className="btn">
-              Get in touch
+              {t.groupCta}
             </EnquireButton>
           </Reveal>
         </div>

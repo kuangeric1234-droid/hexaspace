@@ -7,7 +7,9 @@ import Inclusions from '@/components/Inclusions';
 import CTASection from '@/components/CTASection';
 import Reveal from '@/components/Reveal';
 import EnquireButton from '@/components/enquiry/EnquireButton';
-import { WORKSPACES, COMMON_INCLUSIONS } from '@/data/content';
+import { WORKSPACES, getWorkspaces, getCommonInclusions } from '@/data/content';
+import { getLocale } from '@/i18n/server';
+import { PAGES } from '@/i18n/dictionaries/pages';
 
 export function generateStaticParams() {
   return WORKSPACES.map((w) => ({ slug: w.slug }));
@@ -19,7 +21,8 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const workspace = WORKSPACES.find((w) => w.slug === slug);
+  const locale = await getLocale();
+  const workspace = getWorkspaces(locale).find((w) => w.slug === slug);
   if (!workspace) return {};
   return {
     title: `${workspace.name} — Hexa Space`,
@@ -33,15 +36,21 @@ export default async function WorkspaceDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const workspace = WORKSPACES.find((w) => w.slug === slug);
+  const locale = await getLocale();
+  const t = PAGES[locale].workspaceDetail;
+  const workspaces = getWorkspaces(locale);
+  const workspace = workspaces.find((w) => w.slug === slug);
   if (!workspace) notFound();
 
-  const others = WORKSPACES.filter((w) => w.slug !== slug);
+  const others = workspaces.filter((w) => w.slug !== slug);
+  const commonInclusions = getCommonInclusions(locale);
+  // The value posted to /api/enquire stays in English.
+  const enInterest = WORKSPACES.find((w) => w.slug === slug)?.name;
 
   return (
     <main>
       <PageHero
-        kicker={`Membership · ${workspace.capacity}`}
+        kicker={t.membershipKicker(workspace.capacity)}
         title={workspace.name}
         intro={workspace.tagline}
         image={workspace.image}
@@ -53,7 +62,7 @@ export default async function WorkspaceDetailPage({
           <div className="flex flex-wrap items-center gap-x-10 gap-y-4">
             <div>
               <span className="block font-heading uppercase tracking-label text-[11px] text-paper/50">
-                {workspace.price === 'On application' ? 'Pricing' : 'From'}
+                {workspace.price === 'On application' ? t.pricing : t.from}
               </span>
               <span className="font-display font-extralight text-2xl mt-1">
                 {workspace.price}
@@ -66,7 +75,7 @@ export default async function WorkspaceDetailPage({
             </div>
             <div className="border-l border-paper/15 pl-10 hidden sm:block">
               <span className="block font-heading uppercase tracking-label text-[11px] text-paper/50">
-                Term
+                {t.term}
               </span>
               <span className="font-display font-extralight text-2xl mt-1">
                 {workspace.term}
@@ -74,7 +83,7 @@ export default async function WorkspaceDetailPage({
             </div>
             <div className="border-l border-paper/15 pl-10 hidden lg:block">
               <span className="block font-heading uppercase tracking-label text-[11px] text-paper/50">
-                Capacity
+                {t.capacity}
               </span>
               <span className="font-display font-extralight text-2xl mt-1">
                 {workspace.capacity}
@@ -82,10 +91,10 @@ export default async function WorkspaceDetailPage({
             </div>
           </div>
           <EnquireButton
-            interest={workspace.name}
+            interest={enInterest}
             className="font-heading uppercase tracking-nav text-[11px] border border-paper px-6 py-3 hover:bg-paper hover:text-ink transition-colors duration-500 ease-lux"
           >
-            Enquire
+            {t.enquire}
           </EnquireButton>
         </div>
       </section>
@@ -94,11 +103,11 @@ export default async function WorkspaceDetailPage({
       <section className="bg-bone py-20 md:py-28">
         <div className="container-page grid gap-12 lg:grid-cols-[1fr_1fr] lg:gap-20">
           <Reveal>
-            <p className="eyebrow">Overview</p>
+            <p className="eyebrow">{t.overviewEyebrow}</p>
             <h2 className="h-section mt-6">{workspace.tagline}</h2>
             <p className="lead mt-7">{workspace.intro}</p>
             <p className="mt-8 font-heading uppercase tracking-label text-[11px] text-hexa-green">
-              Ideal for
+              {t.idealFor}
             </p>
             <p className="prose-body mt-2 max-w-md">{workspace.idealFor}</p>
           </Reveal>
@@ -106,8 +115,8 @@ export default async function WorkspaceDetailPage({
             <Inclusions
               label={
                 workspace.inherits
-                  ? `Everything in ${workspace.inherits}, plus`
-                  : 'What’s included'
+                  ? t.everythingIn(workspace.inherits)
+                  : t.whatsIncluded
               }
               items={workspace.inclusions}
             />
@@ -119,8 +128,8 @@ export default async function WorkspaceDetailPage({
       <section className="bg-paper py-20 md:py-28">
         <div className="container-page">
           <Reveal className="max-w-2xl">
-            <p className="eyebrow">Why this membership</p>
-            <h2 className="h-section mt-6">The detail that makes the difference.</h2>
+            <p className="eyebrow">{t.whyEyebrow}</p>
+            <h2 className="h-section mt-6">{t.whyTitle}</h2>
           </Reveal>
           <div className="mt-14 grid gap-px bg-ink/10 sm:grid-cols-3">
             {workspace.highlights.map((h, i) => (
@@ -144,7 +153,7 @@ export default async function WorkspaceDetailPage({
       <section className="bg-bone py-20 md:py-28">
         <div className="container-page">
           <Reveal>
-            <p className="eyebrow">The space</p>
+            <p className="eyebrow">{t.galleryEyebrow}</p>
           </Reveal>
           <div className="mt-10 grid gap-4 md:gap-6 md:grid-cols-3">
             {workspace.gallery.map((src, i) => (
@@ -176,17 +185,16 @@ export default async function WorkspaceDetailPage({
       <section className="bg-paper py-20 md:py-28 border-t border-ink/10">
         <div className="container-page grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
           <Reveal>
-            <p className="eyebrow">Always included</p>
+            <p className="eyebrow">{t.alwaysEyebrow}</p>
             <h2 className="h-section mt-6">
-              Every membership, beautifully serviced.
+              {t.alwaysTitle}
             </h2>
             <p className="prose-body mt-6 max-w-md">
-              Whichever workspace you choose, the essentials — and the community —
-              come as standard.
+              {t.alwaysBody}
             </p>
           </Reveal>
           <Reveal delay={120}>
-            <Inclusions items={COMMON_INCLUSIONS} />
+            <Inclusions items={commonInclusions} />
           </Reveal>
         </div>
       </section>
@@ -196,18 +204,18 @@ export default async function WorkspaceDetailPage({
         eyebrow={`${workspace.name} · ${workspace.price}${workspace.unit}`}
         title={
           <>
-            Make it <span className="italic">yours.</span>
+            {t.ctaTitle} <span className="italic">{t.ctaTitleItalic}</span>
           </>
         }
-        body="Tell us a little about how you work and we’ll tailor the right membership — then show you the floor in person."
-        primaryLabel="Enquire now"
-        interest={workspace.name}
+        body={t.ctaBody}
+        primaryLabel={t.ctaPrimary}
+        interest={enInterest}
       />
 
       {/* Other memberships */}
       <section className="bg-paper py-16 md:py-20 border-t border-ink/10">
         <div className="container-page">
-          <p className="eyebrow">Other memberships</p>
+          <p className="eyebrow">{t.othersEyebrow}</p>
           <div className="mt-8 grid gap-px bg-ink/10 sm:grid-cols-2 lg:grid-cols-4">
             {others.map((w) => (
               <Link

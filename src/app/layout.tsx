@@ -4,6 +4,9 @@ import './globals.css';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import EnquiryProvider from '@/components/enquiry/EnquiryProvider';
+import LocaleProvider from '@/i18n/LocaleProvider';
+import { getLocale } from '@/i18n/server';
+import { COMMON } from '@/i18n/dictionaries/common';
 
 // Hexa brand typefaces (loaded locally from licensed .otf files)
 const display = localFont({
@@ -27,35 +30,41 @@ const body = localFont({
   display: 'swap',
 });
 
-export const metadata: Metadata = {
-  title: 'Hexa Space — Luxury Workspaces in Box Hill, Melbourne',
-  description:
-    'A luxury workspace and members club in Box Hill. Private offices, dedicated desks, meeting rooms, event spaces, media and podcast studios — designed for those who value how they work.',
-  metadataBase: new URL('https://www.hexaspace.com.au'),
-  openGraph: {
-    title: 'Hexa Space — Luxury Workspaces in Box Hill, Melbourne',
-    description:
-      'A luxury workspace and members club in Box Hill, Melbourne.',
-    type: 'website',
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale();
+  const t = COMMON[locale].meta;
+  return {
+    title: t.title,
+    description: t.description,
+    metadataBase: new URL('https://www.hexaspace.com.au'),
+    openGraph: {
+      title: t.title,
+      description: t.ogDescription,
+      type: 'website',
+    },
+  };
+}
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const locale = await getLocale();
+
   return (
     <html
-      lang="en"
+      lang={locale === 'zh' ? 'zh-Hans' : 'en'}
       className={`${display.variable} ${heading.variable} ${body.variable}`}
     >
       <body>
-        <EnquiryProvider>
-          <Header />
-          {children}
-          <Footer />
-        </EnquiryProvider>
+        <LocaleProvider locale={locale}>
+          <EnquiryProvider>
+            <Header />
+            {children}
+            <Footer />
+          </EnquiryProvider>
+        </LocaleProvider>
       </body>
     </html>
   );

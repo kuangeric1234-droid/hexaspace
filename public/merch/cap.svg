@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000">
+  <defs>
+    <filter id="soft" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="18"/></filter>
+    <linearGradient id="crown" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8B9738"/><stop offset="1" stop-color="#707B29"/>
+    </linearGradient>
+    <linearGradient id="brim" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6E7928"/><stop offset="1" stop-color="#5C6522"/>
+    </linearGradient>
+    <g id="logoW">
+      <path d="M0,-11 L9.5,-5.5 L9.5,5.5 L0,11 L-9.5,5.5 L-9.5,-5.5 Z" fill="none" stroke="#FFFFFF" stroke-width="1.6"/>
+      <path d="M0,-6.2 L5,-3.4 L0,-0.6 L-5,-3.4 Z" fill="#FFFFFF"/>
+      <path d="M-5,-3.4 L0,-0.6 L0,5.8 L-5,3 Z" fill="#FFFFFF" opacity="0.72"/>
+      <path d="M5,-3.4 L0,-0.6 L0,5.8 L5,3 Z" fill="#FFFFFF" opacity="0.45"/>
+    </g>
+  </defs>
+  <rect width="800" height="1000" fill="#F6F5F1"/>
+  <ellipse cx="400" cy="700" rx="230" ry="24" fill="#161614" opacity="0.10" filter="url(#soft)"/>
+  <!-- crown -->
+  <path d="M225 560 C225 380 340 320 400 320 C460 320 575 380 575 560 L225 560 Z" fill="url(#crown)"/>
+  <!-- seams -->
+  <path d="M400 320 L400 560" stroke="#5F6923" stroke-width="3" opacity=".6"/>
+  <path d="M318 336 C290 400 282 480 284 560" stroke="#5F6923" stroke-width="3" fill="none" opacity=".5"/>
+  <path d="M482 336 C510 400 518 480 516 560" stroke="#5F6923" stroke-width="3" fill="none" opacity=".5"/>
+  <circle cx="400" cy="320" r="9" fill="#5C6522"/>
+  <!-- brim -->
+  <path d="M222 556 C300 528 500 528 578 556 C600 590 596 640 560 664 C480 610 320 610 240 664 C204 640 200 590 222 556 Z" fill="url(#brim)"/>
+  <!-- band -->
+  <path d="M225 560 L575 560 C576 574 574 584 570 596 C460 552 340 552 230 596 C226 584 224 574 225 560 Z" fill="#161614" opacity="0.12"/>
+  <!-- brand -->
+  <use href="#logoW" transform="translate(400,452) scale(3.4)"/>
+  <text x="400" y="530" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="17" letter-spacing="7" fill="#FFFFFF">HEXA</text>
+</svg>

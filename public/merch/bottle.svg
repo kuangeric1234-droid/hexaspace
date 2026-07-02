@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000">
+  <defs>
+    <filter id="soft" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="18"/></filter>
+    <linearGradient id="steel" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#8B9738"/><stop offset=".5" stop-color="#7F8B2F"/><stop offset="1" stop-color="#636D24"/>
+    </linearGradient>
+    <g id="logoW">
+      <path d="M0,-11 L9.5,-5.5 L9.5,5.5 L0,11 L-9.5,5.5 L-9.5,-5.5 Z" fill="none" stroke="#FFFFFF" stroke-width="1.6"/>
+      <path d="M0,-6.2 L5,-3.4 L0,-0.6 L-5,-3.4 Z" fill="#FFFFFF"/>
+      <path d="M-5,-3.4 L0,-0.6 L0,5.8 L-5,3 Z" fill="#FFFFFF" opacity="0.72"/>
+      <path d="M5,-3.4 L0,-0.6 L0,5.8 L5,3 Z" fill="#FFFFFF" opacity="0.45"/>
+    </g>
+  </defs>
+  <rect width="800" height="1000" fill="#F6F5F1"/>
+  <ellipse cx="400" cy="836" rx="130" ry="18" fill="#161614" opacity="0.12" filter="url(#soft)"/>
+  <!-- cap -->
+  <rect x="362" y="196" width="76" height="64" rx="12" fill="#161614"/>
+  <rect x="362" y="216" width="76" height="8" fill="#000000" opacity=".5"/>
+  <!-- neck & body -->
+  <path d="M330 328 C330 292 352 260 400 260 C448 260 470 292 470 328 L474 780 C474 812 452 830 400 830 C348 830 326 812 326 780 Z" fill="url(#steel)"/>
+  <path d="M352 276 C344 288 338 306 338 322 L338 360" stroke="#FFFFFF" stroke-width="8" opacity=".18" stroke-linecap="round" fill="none"/>
+  <!-- brand -->
+  <use href="#logoW" transform="translate(400,520) scale(3.4)"/>
+  <text x="400" y="598" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" letter-spacing="7" fill="#FFFFFF">HEXA SPACE</text>
+  <text x="400" y="626" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="9" letter-spacing="4" fill="#FFFFFF" opacity=".7">INSULATED · 750ML</text>
+</svg>

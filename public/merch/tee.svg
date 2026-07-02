@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000">
+  <defs>
+    <filter id="soft" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="18"/></filter>
+    <linearGradient id="shirt" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#242422"/><stop offset="1" stop-color="#141412"/>
+    </linearGradient>
+    <g id="logoW">
+      <path d="M0,-11 L9.5,-5.5 L9.5,5.5 L0,11 L-9.5,5.5 L-9.5,-5.5 Z" fill="none" stroke="#FFFFFF" stroke-width="1.6"/>
+      <path d="M0,-6.2 L5,-3.4 L0,-0.6 L-5,-3.4 Z" fill="#FFFFFF"/>
+      <path d="M-5,-3.4 L0,-0.6 L0,5.8 L-5,3 Z" fill="#FFFFFF" opacity="0.72"/>
+      <path d="M5,-3.4 L0,-0.6 L0,5.8 L5,3 Z" fill="#FFFFFF" opacity="0.45"/>
+    </g>
+  </defs>
+  <rect width="800" height="1000" fill="#F6F5F1"/>
+  <ellipse cx="400" cy="812" rx="240" ry="24" fill="#161614" opacity="0.10" filter="url(#soft)"/>
+  <!-- tee -->
+  <path d="M320 268 C348 250 452 250 480 268 L590 320 L626 424 L544 462 L536 414 L536 770 C536 786 522 794 400 794 C278 794 264 786 264 770 L264 414 L256 462 L174 424 L210 320 Z" fill="url(#shirt)"/>
+  <!-- collar -->
+  <path d="M320 268 C348 292 452 292 480 268 C462 300 338 300 320 268 Z" fill="#0B0B0A"/>
+  <path d="M320 268 C348 250 452 250 480 268 C452 284 348 284 320 268 Z" fill="#2E2E2A"/>
+  <!-- sleeve seams -->
+  <path d="M264 414 L264 430" stroke="#000" stroke-width="2" opacity=".4"/>
+  <path d="M536 414 L536 430" stroke="#000" stroke-width="2" opacity=".4"/>
+  <!-- chest brand -->
+  <use href="#logoW" transform="translate(464,388) scale(2.6)"/>
+  <text x="464" y="446" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" letter-spacing="5" fill="#FFFFFF">HEXA SPACE</text>
+</svg>

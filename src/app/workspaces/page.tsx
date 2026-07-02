@@ -6,34 +6,46 @@ import Inclusions from '@/components/Inclusions';
 import CTASection from '@/components/CTASection';
 import Reveal from '@/components/Reveal';
 import EnquireButton from '@/components/enquiry/EnquireButton';
-import { WORKSPACES, COMMON_INCLUSIONS } from '@/data/content';
+import { WORKSPACES, getWorkspaces, getCommonInclusions } from '@/data/content';
+import { getLocale } from '@/i18n/server';
+import { PAGES } from '@/i18n/dictionaries/pages';
 
-export const metadata: Metadata = {
-  title: 'Workspaces — Hexa Space',
-  description:
-    'Virtual offices, flexible and dedicated desks, private offices and enterprise suites in Box Hill, Melbourne — with transparent pricing and full inclusions.',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale();
+  const t = PAGES[locale].workspacesPage;
+  return {
+    title: t.metaTitle,
+    description: t.metaDescription,
+  };
+}
 
-export default function WorkspacesPage() {
+export default async function WorkspacesPage() {
+  const locale = await getLocale();
+  const t = PAGES[locale].workspacesPage;
+  const workspaces = getWorkspaces(locale);
+  const commonInclusions = getCommonInclusions(locale);
+  // Enquiry values posted to the API stay in English, keyed by slug.
+  const enName = (slug: string) => WORKSPACES.find((w) => w.slug === slug)?.name;
+
   return (
     <main>
       <PageHero
-        kicker="Workspaces"
+        kicker={t.heroKicker}
         title={
           <>
-            Membership, at
+            {t.heroTitle}
             <br />
-            <span className="italic">every scale.</span>
+            <span className="italic">{t.heroTitleItalic}</span>
           </>
         }
-        intro="From a business address to a self-contained suite — month-to-month, transparently priced, and designed around how you actually want to work."
+        intro={t.heroIntro}
         image="/photos/workspace.jpg"
       />
 
       {/* Quick index of tiers */}
       <section className="bg-paper border-b border-ink/10">
         <div className="container-page py-6 flex flex-wrap gap-x-8 gap-y-3">
-          {WORKSPACES.map((w) => (
+          {workspaces.map((w) => (
             <Link
               key={w.slug}
               href={`#${w.slug}`}
@@ -49,22 +61,21 @@ export default function WorkspacesPage() {
       <section className="bg-bone py-20 md:py-28">
         <div className="container-page grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
           <Reveal>
-            <p className="eyebrow">Always included</p>
-            <h2 className="h-section mt-6">Every membership, beautifully serviced.</h2>
+            <p className="eyebrow">{t.includedEyebrow}</p>
+            <h2 className="h-section mt-6">{t.includedTitle}</h2>
             <p className="prose-body mt-6 max-w-md">
-              Whichever workspace you choose, the essentials are handled — so you
-              can arrive, settle in and get to work.
+              {t.includedBody}
             </p>
           </Reveal>
           <Reveal delay={120}>
-            <Inclusions items={COMMON_INCLUSIONS} />
+            <Inclusions items={commonInclusions} />
           </Reveal>
         </div>
       </section>
 
       {/* Tiers — alternating rows */}
       <section className="bg-paper">
-        {WORKSPACES.map((w, i) => {
+        {workspaces.map((w, i) => {
           const flip = i % 2 === 1;
           return (
             <Reveal key={w.slug}>
@@ -108,8 +119,8 @@ export default function WorkspacesPage() {
                         <Inclusions
                           label={
                             w.inherits
-                              ? `Everything in ${w.inherits}, plus`
-                              : 'Inclusions'
+                              ? t.everythingIn(w.inherits)
+                              : t.inclusionsLabel
                           }
                           items={w.inclusions}
                         />
@@ -127,10 +138,10 @@ export default function WorkspacesPage() {
                             href={`/workspaces/${w.slug}`}
                             className="btn-ghost"
                           >
-                            View membership
+                            {t.viewMembership}
                           </Link>
-                          <EnquireButton interest={w.name} className="btn">
-                            Enquire
+                          <EnquireButton interest={enName(w.slug)} className="btn">
+                            {t.enquire}
                           </EnquireButton>
                         </div>
                       </div>
@@ -144,13 +155,13 @@ export default function WorkspacesPage() {
       </section>
 
       <CTASection
-        eyebrow="Not sure which fits?"
+        eyebrow={t.ctaEyebrow}
         title={
           <>
-            Let’s find your <span className="italic">space.</span>
+            {t.ctaTitle} <span className="italic">{t.ctaTitleItalic}</span>
           </>
         }
-        body="Tell us about your team and how you like to work, and we’ll tailor the right membership — then show you around in person."
+        body={t.ctaBody}
       />
     </main>
   );
