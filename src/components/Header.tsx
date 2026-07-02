@@ -142,25 +142,24 @@ export default function Header() {
             <Link href="/book" className={link}>
               {t.nav.book}
             </Link>
+            <LanguageToggle
+              className={`transition-colors duration-500 ${solid ? 'text-ink/75' : 'text-paper/80'}`}
+            />
             <a
               href={MEMBERS_URL}
               aria-label={t.nav.memberLogin}
               title={t.nav.memberLogin}
-              className={`${link} inline-flex items-center gap-1.5`}
+              className="text-hexa-green hover:opacity-70 transition-opacity duration-300"
             >
-              <svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden>
+              <svg width="17" height="17" viewBox="0 0 14 14" fill="none" aria-hidden>
                 <path
                   d="M7 7.2a2.4 2.4 0 1 0 0-4.8 2.4 2.4 0 0 0 0 4.8ZM2.4 12c0-2.2 2-3.6 4.6-3.6s4.6 1.4 4.6 3.6"
                   stroke="currentColor"
-                  strokeWidth="1.1"
+                  strokeWidth="1.2"
                   strokeLinecap="round"
                 />
               </svg>
-              <span className="hidden 2xl:inline">{t.nav.memberLogin}</span>
             </a>
-            <LanguageToggle
-              className={`transition-colors duration-500 ${solid ? 'text-ink/75' : 'text-paper/80'}`}
-            />
             <button
               type="button"
               onClick={() => openEnquiry()}
