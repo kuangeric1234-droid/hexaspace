@@ -43,8 +43,11 @@ export default function Header() {
   const NAV: NavItem[] = [
     { label: t.nav.workspaces, href: '/memberships', children: workspaceLinks },
     { label: t.nav.spaces, href: '/space-hire', children: spaceLinks },
-    { label: t.nav.community, href: '/community' },
-    { label: t.nav.merch, href: '/merch' },
+    {
+      label: t.nav.community,
+      href: '/community',
+      children: [{ label: t.nav.merch, href: '/merch' }],
+    },
     { label: t.nav.about, href: '/about' },
   ];
 
@@ -120,7 +123,7 @@ export default function Header() {
         <div className="grid grid-cols-[1fr_auto] lg:grid-cols-[1fr_auto_1fr] lg:gap-x-6 items-center h-20">
           {/* Left nav (desktop) */}
           <nav className="hidden lg:flex items-center gap-4 xl:gap-7">
-            {NAV.slice(0, 4).map(renderDesktopItem)}
+            {NAV.slice(0, 3).map(renderDesktopItem)}
           </nav>
 
           {/* Centered wordmark */}
@@ -138,7 +141,7 @@ export default function Header() {
 
           {/* Right nav (desktop) + Member login + Enquire */}
           <div className="hidden lg:flex items-center justify-end gap-4 xl:gap-7">
-            {NAV.slice(4).map(renderDesktopItem)}
+            {NAV.slice(3).map(renderDesktopItem)}
             <Link href="/book" className={link}>
               {t.nav.book}
             </Link>
