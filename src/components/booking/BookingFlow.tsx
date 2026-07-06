@@ -63,6 +63,7 @@ export default function BookingFlow({
   const [accountState, setAccountState] = useState<'new' | 'existing'>('new');
   const [checking, setChecking] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [redirecting, setRedirecting] = useState(false);
   const [error, setError] = useState('');
   const [result, setResult] = useState<CreateBookingResult | null>(null);
 
@@ -94,7 +95,53 @@ export default function BookingFlow({
       return setStep(1);
     }
     if (step === 1) return submitDetails();
-    if (step === 2) return reserve();
+    if (step === 2) return total != null && total > 0 ? pay() : reserve();
+  }
+
+  /**
+   * Paid path: ask the server for a Stripe Checkout session and redirect.
+   * When payments aren't live (no key / RND toggle off / POA) the server
+   * answers { fallback: true } and we reserve unpaid exactly as before.
+   */
+  async function pay() {
+    setSubmitting(true);
+    setError('');
+    try {
+      const res = await fetch('/api/book/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          resourceId: resource.id,
+          date: form.date,
+          startTime: form.startTime,
+          endTime: form.endTime,
+          allDay,
+          title: form.title,
+          description: form.description,
+          name: form.name,
+          email: form.email,
+          phone: form.phone,
+          company: form.company,
+        }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setError(json.error || t.errGeneric);
+        setSubmitting(false);
+        return;
+      }
+      if (json.url) {
+        setRedirecting(true);
+        window.location.assign(json.url as string);
+        return; // keep the button disabled while the browser navigates
+      }
+      // fallback: online payment unavailable — unpaid reserve
+      setSubmitting(false);
+      await reserve();
+    } catch {
+      setError(t.errNetwork);
+      setSubmitting(false);
+    }
   }
 
   async function submitDetails() {
@@ -273,30 +320,38 @@ export default function BookingFlow({
 
               <div className="border border-ink/10 p-7 md:p-9">
                 <h2 className="font-display font-extralight text-2xl">{t.paymentTitle}</h2>
-                <div className="mt-3 inline-flex items-center gap-2 font-heading uppercase tracking-nav text-[10px] text-hexa-green">
-                  <Lock /> {t.securePayment}
-                </div>
-                <p className="prose-body mt-4 text-[14px]">
-                  {t.paymentBody1}<strong>{t.paymentReserve}</strong>
-                  {t.paymentBody2}
-                  {total != null ? `A$${total.toFixed(2)} +GST` : t.theSession}
-                  {t.paymentBody3}
-                </p>
+                {total != null && total > 0 ? (
+                  <>
+                    <div className="mt-3 inline-flex items-center gap-2 font-heading uppercase tracking-nav text-[10px] text-hexa-green">
+                      <Lock /> {t.securePaymentLive}
+                    </div>
+                    <p className="prose-body mt-4 text-[14px]">{t.payIntro}</p>
 
-                {/* Stripe-ready scaffold (disabled until keys are live) */}
-                <div className="mt-6 space-y-4 opacity-50 pointer-events-none select-none">
-                  <Labeled label={t.cardholder}>
-                    <input disabled placeholder={t.cardholderPh} className={inputCls} />
-                  </Labeled>
-                  <Labeled label={t.cardDetails}>
-                    <input disabled placeholder="1234 1234 1234 1234" className={inputCls} />
-                  </Labeled>
-                  <div className="grid grid-cols-3 gap-4">
-                    <input disabled placeholder="MM / YY" className={inputCls} />
-                    <input disabled placeholder="CVC" className={inputCls} />
-                    <input disabled placeholder="ZIP" className={inputCls} />
-                  </div>
-                </div>
+                    {/* Amount breakdown — the charge is inc. GST */}
+                    <div className="mt-6 border border-ink/10 bg-bone/40 p-5 space-y-3">
+                      <Row label={t.subtotal} value={`A$${total.toFixed(2)}`} />
+                      <Row label={t.gstLine} value={`A$${(total * 0.1).toFixed(2)}`} />
+                      <div className="border-t border-ink/10 pt-3 flex items-baseline justify-between">
+                        <span className="eyebrow">{t.totalCharged}</span>
+                        <span className="font-display font-extralight text-2xl">
+                          A${(total * 1.1).toFixed(2)}
+                        </span>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="mt-3 inline-flex items-center gap-2 font-heading uppercase tracking-nav text-[10px] text-hexa-green">
+                      <Lock /> {t.securePayment}
+                    </div>
+                    <p className="prose-body mt-4 text-[14px]">
+                      {t.paymentBody1}<strong>{t.paymentReserve}</strong>
+                      {t.paymentBody2}
+                      {t.theSession}
+                      {t.paymentBody3}
+                    </p>
+                  </>
+                )}
               </div>
             </div>
             <Summary resource={resource} form={form} dur={dur} gross={gross} total={total} allDay={allDay} showPolicy />
@@ -353,7 +408,16 @@ export default function BookingFlow({
               >
                 {step === 0 && t.continue}
                 {step === 1 && (checking ? t.checkingBtn : t.continue)}
-                {step === 2 && (submitting ? t.reserving : t.reserveBooking)}
+                {step === 2 &&
+                  (total != null && total > 0
+                    ? redirecting
+                      ? t.redirecting
+                      : submitting
+                        ? t.checkingBtn
+                        : t.payNow
+                    : submitting
+                      ? t.reserving
+                      : t.reserveBooking)}
               </button>
             </div>
           </div>
