@@ -21,8 +21,10 @@ export default async function Hero() {
       />
       <div className="absolute inset-0 bg-gradient-to-b from-ink/40 via-ink/10 to-ink/70" />
 
-      {/* Copy — text-forward, words land first */}
-      <div className="relative container-page pb-20 md:pb-28">
+      {/* Copy — text-forward, words land first. Top padding reserves the fixed
+          header's space so on high zoom / short viewports the section grows
+          instead of the text sliding under the nav. */}
+      <div className="relative container-page pt-28 md:pt-32 pb-20 md:pb-28">
         <div className="max-w-4xl md:pl-6 lg:pl-10 pr-4">
           <p className="eyebrow text-paper/70 animate-rise">{t.eyebrow}</p>
           <h1 className="h-display text-paper mt-6 animate-rise" style={{ animationDelay: '120ms' }}>
