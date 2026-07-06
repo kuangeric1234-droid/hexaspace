@@ -7,6 +7,7 @@
 // for the same session can never double-book.
 // ─────────────────────────────────────────────────────────────────────────────
 import type { BookableResource } from '@/data/bookable';
+import { BOOKABLE_RESOURCES } from '@/data/bookable';
 import { getBookableResources, rndConfigured, rndInsert, rndSelect } from './rnd';
 import { longDate, overlaps, timeLabel, toDec } from './booking';
 
@@ -86,9 +87,27 @@ export function validateInput(input: BookingInput): string | null {
   return null;
 }
 
+// Rooms exist under two id schemes: live RND ids (e.g. `hx_mr_sky`) and the
+// static fallback ids (e.g. `room-sky`). If the client's resource fetch and a
+// server-side fetch don't agree (one of them fell back), ids won't match —
+// bridge them by room keyword instead of failing with "Unknown room".
+const ROOM_KEYS = ['sky', 'earth', 'west', 'east', 'north', 'south', 'central', 'podcast', 'media'];
+
 export async function resolveResource(resourceId: string): Promise<BookableResource | null> {
   const resources = await getBookableResources();
-  return resources.find((r) => r.id === resourceId) ?? null;
+  const direct = resources.find((r) => r.id === resourceId);
+  if (direct) return direct;
+
+  const staticMatch = BOOKABLE_RESOURCES.find((r) => r.id === resourceId);
+  const haystack = `${resourceId} ${staticMatch?.name ?? ''}`.toLowerCase();
+  const key = ROOM_KEYS.find((k) => haystack.includes(k));
+  if (key) {
+    const candidates = resources.filter((r) => `${r.id} ${r.name}`.toLowerCase().includes(key));
+    if (candidates.length === 1) return candidates[0];
+  }
+  // Last resort: the static entry itself (correct name + rate; the RND admin
+  // can re-link the booking if the id isn't a live space id).
+  return staticMatch ?? null;
 }
 
 /** True when another non-cancelled booking overlaps the requested slot. */

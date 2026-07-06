@@ -65,11 +65,17 @@ export async function stripeFetch(
 }
 
 /**
- * The RND admin's master switch for online payments
- * (Settings → Integrations → Stripe). Fail closed on errors.
+ * Online-payments gate. Website env override first:
+ *   STRIPE_PAYMENTS_ENABLED=true   → on (as long as the secret key exists)
+ *   STRIPE_PAYMENTS_ENABLED=false  → off
+ * Otherwise defer to the RND admin's master switch
+ * (Settings → Integrations → Stripe → paymentsEnabled). Fail closed on errors.
  */
 export async function paymentsEnabled(): Promise<boolean> {
   if (!stripeConfigured()) return false;
+  const override = process.env.STRIPE_PAYMENTS_ENABLED;
+  if (override === 'true') return true;
+  if (override === 'false') return false;
   if (!rndConfigured()) return false;
   try {
     const rows = await rndSelect<{ stripe?: { paymentsEnabled?: boolean } }>(
