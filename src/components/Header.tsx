@@ -16,8 +16,8 @@ const LIGHT_TOP_ROUTES = ['/book'];
 type NavChild = { label: string; href: string; meta?: string };
 type NavItem = { label: string; href: string; children?: NavChild[] };
 
-// The member/client portal (separate app, members subdomain).
-const MEMBERS_URL = 'https://members.hexaspace.com.au';
+// The member/client portal (separate app, portal subdomain).
+const MEMBERS_URL = 'https://portal.hexaspace.com.au';
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);

@@ -31,7 +31,7 @@ export default async function Footer() {
         { label: t.footer.podcast, href: '/podcast' },
         { label: t.footer.about, href: '/about' },
         { label: t.footer.contact, enquire: true as const },
-        { label: t.footer.memberLogin, href: 'https://members.hexaspace.com.au' },
+        { label: t.footer.memberLogin, href: 'https://portal.hexaspace.com.au' },
       ],
     },
   ];

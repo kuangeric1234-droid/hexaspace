@@ -30,6 +30,7 @@ const en = {
     confirmError:
       'We couldn’t verify the payment automatically. If you were charged, email info@hexaspace.com.au and we’ll sort it out immediately.',
     tabs: { meeting: 'Meeting Rooms', studio: 'Studios' },
+    floorLabel: (id: string) => ({ l2: 'Level 2', l4: 'Level 4', l5: 'Level 5' }[id] ?? id),
     spacesCount: (n: number) => `${n} ${n === 1 ? 'space' : 'spaces'}`,
     checking: 'checking availability…',
     clickToBook: 'click an open slot to book',
@@ -240,6 +241,7 @@ const zh: BookingDict = {
     paidDone: '完成',
     confirmError: '我们暂时无法自动核实这笔付款。若您已被扣款，请发送邮件至 info@hexaspace.com.au，我们会立即为您处理。',
     tabs: { meeting: '会议室', studio: '工作室' },
+    floorLabel: (id: string) => ({ l2: '2 楼', l4: '4 楼', l5: '5 楼' }[id] ?? id),
     spacesCount: (n: number) => `${n} 个空间`,
     checking: '正在查询可预订时段…',
     clickToBook: '点击空闲时段即可预订',

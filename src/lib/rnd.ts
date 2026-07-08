@@ -62,8 +62,15 @@ type RndSpace = {
   capacity?: number;
   hourlyRate?: number;
   rate?: number;
+  floor?: string;
   image?: string | null;
 };
+
+// Level 2 rooms by name; everything else on Level 4 — a fallback for when the
+// RND space record has no `floor` set.
+const L2_ROOMS = new Set(['sun', 'moon', 'central']);
+const floorOf = (s: RndSpace): string | undefined =>
+  s.floor ?? (L2_ROOMS.has((s.unitNumber ?? '').trim().toLowerCase().split(/[\s(/·—-]/)[0]) ? 'l2' : undefined);
 
 /** Map an RND space name to one of the site's photos (RND spaces have no images). */
 function imageForName(name: string): string {
@@ -115,6 +122,7 @@ export async function getBookableResources(): Promise<BookableResource[]> {
         id: s.id,
         name,
         group,
+        floor: floorOf(s),
         pax: paxFrom(s.capacity, s.size),
         capacityLabel: s.size ?? (s.capacity ? `Up to ${s.capacity}` : ''),
         rate,

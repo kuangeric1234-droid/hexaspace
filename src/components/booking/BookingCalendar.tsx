@@ -48,9 +48,40 @@ export default function BookingCalendar({ initialTab = 'meeting' }: { initialTab
   const [loading, setLoading] = useState(false);
   const [slot, setSlot] = useState<Slot | null>(null);
   const [payReturn, setPayReturn] = useState<PayReturn | null>(null);
+  const [floor, setFloor] = useState<string | null>(null);
 
   const dayStr = ymd(day);
-  const resources = useMemo(() => allResources.filter((r) => r.group === tab), [allResources, tab]);
+
+  // Rooms in the active tab, and the floors they span (for the Level filter).
+  const tabResources = useMemo(() => allResources.filter((r) => r.group === tab), [allResources, tab]);
+  const floors = useMemo(() => {
+    const order = ['l2', 'l4', 'l5'];
+    const present = [...new Set(tabResources.map((r) => r.floor).filter(Boolean))] as string[];
+    return present.sort((a, b) => order.indexOf(a) - order.indexOf(b));
+  }, [tabResources]);
+
+  // Keep a valid floor selected: none when the tab spans ≤1 floor, else default
+  // to the floor with the most rooms (Level 4). Runs when the tab/floors change.
+  useEffect(() => {
+    if (floors.length <= 1) {
+      setFloor(null);
+      return;
+    }
+    setFloor((cur) =>
+      cur && floors.includes(cur)
+        ? cur
+        : [...floors].sort(
+            (a, b) =>
+              tabResources.filter((r) => r.floor === b).length -
+              tabResources.filter((r) => r.floor === a).length
+          )[0]
+    );
+  }, [floors, tabResources]);
+
+  const resources = useMemo(
+    () => (floor ? tabResources.filter((r) => r.floor === floor) : tabResources),
+    [tabResources, floor]
+  );
 
   // Photo size: studios show as 2 wide columns, so give them a much taller image.
   // Header box stays a fixed height (photo + text) so it never scrolls.
@@ -196,6 +227,26 @@ export default function BookingCalendar({ initialTab = 'meeting' }: { initialTab
             {t.spacesCount(resources.length)} ·{' '}
             {loading ? t.checking : t.clickToBook}
           </p>
+
+          {/* Level filter — only when this tab's rooms span more than one floor */}
+          {floors.length > 1 && (
+            <div className="mt-4 flex items-center gap-2">
+              {floors.map((id) => (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => setFloor(id)}
+                  className={`font-heading uppercase tracking-nav text-[10px] border px-3.5 py-1.5 transition-colors ${
+                    floor === id
+                      ? 'bg-ink text-paper border-ink'
+                      : 'border-ink/15 text-muted hover:bg-bone hover:text-ink'
+                  }`}
+                >
+                  {t.floorLabel(id)}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Date navigation */}
@@ -273,8 +324,8 @@ export default function BookingCalendar({ initialTab = 'meeting' }: { initialTab
                         </span>
                       )}
                     </div>
-                    <div className="mt-1.5">
-                      <span className="font-heading uppercase tracking-nav text-[9px] text-hexa-green">
+                    <div className="mt-1">
+                      <span className="font-heading uppercase tracking-nav text-[10px] text-ink">
                         {room.rateLabel === 'POA' ? t.poa : room.rateLabel}
                       </span>
                     </div>

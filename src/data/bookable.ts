@@ -14,6 +14,8 @@ export type BookableResource = {
   name: string;
   /** which calendar tab it appears under */
   group: BookableGroup;
+  /** building floor id ('l2' | 'l4' | 'l5') for the level filter; undefined = unassigned */
+  floor?: string;
   /** people capacity (for the "pax" badge); null when not a seated count */
   pax: number | null;
   /** raw capacity label, e.g. "Up to 8 guests" */
@@ -40,12 +42,17 @@ const meetingSpace = SPACES.find((s) => s.slug === 'meeting-rooms');
 const mediaSpace = SPACES.find((s) => s.slug === 'media-studios');
 const podcastSpace = SPACES.find((s) => s.slug === 'podcast-studio');
 
+// Level 2 rooms by name; everything else on Level 4 (studios are separate).
+const L2_ROOMS = new Set(['sun', 'moon', 'central']);
+const leadWord = (name: string) => name.trim().toLowerCase().split(/[\s(/·—-]/)[0];
+
 const meetingRooms: BookableResource[] = (meetingSpace?.rooms ?? []).map((r) => {
   const rate = dollars(r.price);
   return {
     id: `room-${r.name.toLowerCase()}`,
     name: r.note ? `${r.name} · ${r.note}` : r.name,
     group: 'meeting',
+    floor: L2_ROOMS.has(leadWord(r.name)) ? 'l2' : 'l4',
     pax: firstInt(r.capacity),
     capacityLabel: r.capacity,
     rate,

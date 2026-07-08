@@ -15,7 +15,7 @@ import {
 import { useLocale } from '@/i18n/LocaleProvider';
 import { BOOKING } from '@/i18n/dictionaries/booking';
 
-const MEMBERS_URL = 'https://members.hexaspace.com.au';
+const MEMBERS_URL = 'https://portal.hexaspace.com.au';
 const ALL_DAY_DISCOUNT = 0.3; // 30% off all-day public bookings
 
 // Selectable half-hourly times across operating hours.
