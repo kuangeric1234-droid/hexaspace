@@ -91,7 +91,7 @@ export function validateInput(input: BookingInput): string | null {
 // static fallback ids (e.g. `room-sky`). If the client's resource fetch and a
 // server-side fetch don't agree (one of them fell back), ids won't match —
 // bridge them by room keyword instead of failing with "Unknown room".
-const ROOM_KEYS = ['sky', 'earth', 'west', 'east', 'north', 'south', 'central', 'podcast', 'media'];
+const ROOM_KEYS = ['sky', 'earth', 'west', 'east', 'north', 'south', 'central', 'sun', 'moon', 'podcast', 'media'];
 
 export async function resolveResource(resourceId: string): Promise<BookableResource | null> {
   const resources = await getBookableResources();

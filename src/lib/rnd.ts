@@ -77,6 +77,8 @@ function imageForName(name: string): string {
   const n = name.toLowerCase();
   if (n.includes('sky')) return '/photos/room-sky.jpg';
   if (n.includes('earth')) return '/photos/room-earth.jpg';
+  if (n.includes('sun')) return '/photos/room-sun.jpg';
+  if (n.includes('moon')) return '/photos/room-moon.jpg';
   if (n.includes('north')) return '/photos/room-north.jpg';
   if (n.includes('south')) return '/photos/room-south.jpg';
   if (n.includes('east')) return '/photos/room-east.jpg';
@@ -142,7 +144,7 @@ export async function getBookableResources(): Promise<BookableResource[]> {
   }
 }
 
-const ROOM_ORDER = ['sky', 'earth', 'west', 'north', 'south', 'central', 'east'];
+const ROOM_ORDER = ['sky', 'earth', 'west', 'north', 'south', 'central', 'sun', 'moon', 'east'];
 function roomRank(name: string): number {
   const i = ROOM_ORDER.findIndex((k) => name.toLowerCase().includes(k));
   return i < 0 ? ROOM_ORDER.length : i;
